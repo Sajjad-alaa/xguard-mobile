@@ -457,8 +457,7 @@ class XGuardInstancesData extends DataClass
           other.openidDisplayName == this.openidDisplayName);
 }
 
-class XGuardInstancesCompanion
-    extends UpdateCompanion<XGuardInstancesData> {
+class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstancesData> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> uuid;

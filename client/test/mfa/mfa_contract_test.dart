@@ -6,7 +6,6 @@ import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
 import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/mfa/mfa_steps.dart';
-import 'package:mobile/enterprise/postures.dart';
 import 'package:mobile/data/proxy/config.dart' as proxy_config;
 import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/utils/update_instance.dart';
@@ -19,7 +18,6 @@ class _RejectingFlowTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   }) async {
     startCalls++;
     throw const MfaStartRejectedException('stale flow plan');

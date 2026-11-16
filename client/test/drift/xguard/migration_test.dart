@@ -70,9 +70,7 @@ void main() {
         batch.insertAll(oldDb.xguardInstances, [oldInstance]);
       },
       validateItems: (newDb) async {
-        final instance = await newDb
-            .select(newDb.xguardInstances)
-            .getSingle();
+        final instance = await newDb.select(newDb.xguardInstances).getSingle();
         expect(instance.uuid, 'instance-uuid');
         expect(instance.openidProviderKind, 'google');
         expect(instance.mfaContract, 'legacy');

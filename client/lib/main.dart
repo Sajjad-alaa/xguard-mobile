@@ -3,7 +3,6 @@ import 'package:flutter/material.dart' as flutter_material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/client_identity.dart';
-import 'package:mobile/enterprise/config_update.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
 import 'package:mobile/open/riverpod/router/router.dart';
 import 'package:mobile/open/widgets/toaster/toaster_provider.dart';
@@ -21,7 +20,7 @@ void main() async {
   await rive.RiveNative.init();
   runApp(
     ProviderScope(
-      child: ConfigurationUpdater(child: BiometricsController(child: _App())),
+      child: BiometricsController(child: _App()),
     ),
   );
 }

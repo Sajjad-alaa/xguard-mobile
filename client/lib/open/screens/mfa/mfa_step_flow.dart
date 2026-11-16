@@ -4,8 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
-import 'package:mobile/enterprise/screens/mfa/mfa_fido2_screen.dart';
-import 'package:mobile/enterprise/screens/mfa/openid_mfa_screen.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/screens/mfa/mfa_biometric_screen.dart';
 import 'package:mobile/open/screens/mfa/mfa_email_screen.dart';
@@ -160,15 +158,25 @@ class MfaStepFlow implements MfaStepHost {
       host: this,
       secureStorageKey: secureStorageKey!,
     ),
-    MfaMethod.openid => OpenIdMfaScreen(
-      host: this,
-      proxyUrl: proxyUrl,
-      openidDisplayName: openidDisplayName,
-      openidProvider: openidProvider ?? OpenIdProvider.custom,
-    ),
-    MfaMethod.fido2 => MfaFido2Screen(
-      host: this,
-      rpId: Uri.parse(instanceUrl).host.toLowerCase(),
-    ),
+    // OpenID and FIDO2 MFA are not supported by XGuard; the method mapping never selects
+    // them, but the switch must stay exhaustive.
+    MfaMethod.openid || MfaMethod.fido2 => const _UnsupportedMfaMethodScreen(),
   };
+}
+
+class _UnsupportedMfaMethodScreen extends StatelessWidget {
+  const _UnsupportedMfaMethodScreen();
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(
+    body: Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          'This MFA method is not supported by XGuard.',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ),
+  );
 }

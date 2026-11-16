@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_method_api.dart';
@@ -27,10 +26,9 @@ Map<String, dynamic> _pollResponse(List<Map<String, dynamic>> steps) => {
 
 void main() {
   group('ApiMfaMethod', () {
-    test('maps the four methods mobile can perform', () {
+    test('maps the three methods mobile can perform', () {
       expect(ApiMfaMethod.totp.supported, MfaMethod.totp);
       expect(ApiMfaMethod.email.supported, MfaMethod.email);
-      expect(ApiMfaMethod.oidc.supported, MfaMethod.openid);
       expect(ApiMfaMethod.biometric.supported, MfaMethod.biometric);
     });
 
@@ -39,18 +37,17 @@ void main() {
       expect(ApiMfaMethod.unknown.supported, isNull);
     });
 
-    test('supports FIDO2 on Android and iOS', () {
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      expect(ApiMfaMethod.fido2.supported, MfaMethod.fido2);
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-      expect(ApiMfaMethod.fido2.supported, MfaMethod.fido2);
-      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    test('does not support OpenID or FIDO2 (not part of XGuard)', () {
+      expect(ApiMfaMethod.oidc.supported, isNull);
       expect(ApiMfaMethod.fido2.supported, isNull);
     });
 
-    test('round-trips MfaMethod', () {
-      for (final method in MfaMethod.values) {
+    test('round-trips the supported MfaMethods', () {
+      for (final method in [
+        MfaMethod.totp,
+        MfaMethod.email,
+        MfaMethod.biometric,
+      ]) {
         expect(ApiMfaMethod.of(method).supported, method);
       }
     });

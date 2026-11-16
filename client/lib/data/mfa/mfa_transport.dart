@@ -1,7 +1,6 @@
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/proxy/mfa.dart';
 import 'package:mobile/data/proxy/mfa_flow.dart' as wire;
-import 'package:mobile/enterprise/postures.dart';
 import 'package:mobile/open/api.dart';
 
 abstract class MfaTransport {
@@ -9,7 +8,6 @@ abstract class MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   });
 
   Future<MfaStepChallenge> startStep(String token, MfaMethod method);
@@ -132,7 +130,6 @@ class LegacyMfaTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   }) async {
     if (plan.length != 1 || plan.single == MfaMethod.fido2) {
       throw UnsupportedError(
@@ -145,7 +142,6 @@ class LegacyMfaTransport implements MfaTransport {
         pubkey: devicePubkey,
         locationId: networkId,
         method: plan.single,
-        postureData: postureData,
       ),
     );
     return MfaSessionStart(
@@ -203,14 +199,12 @@ class MfaFlowProxyTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   }) async {
     final response = await _api.startMfaFlow(
       proxyUrl,
       wire.MfaFlowStartRequest(
         locationId: networkId,
         pubkey: devicePubkey,
-        postureData: postureData,
         selectedMethods: plan,
       ),
     );

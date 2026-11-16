@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/data/db/enums.dart';
-import 'package:mobile/enterprise/postures.dart';
 
 part 'mfa_flow.g.dart';
 
@@ -8,13 +7,11 @@ part 'mfa_flow.g.dart';
 class MfaFlowStartRequest {
   final int locationId;
   final String pubkey;
-  final DevicePostureData? postureData;
   final List<MfaMethod> selectedMethods;
 
   const MfaFlowStartRequest({
     required this.locationId,
     required this.pubkey,
-    this.postureData,
     required this.selectedMethods,
   });
 

@@ -10,7 +10,6 @@ import 'package:mobile/data/proxy/config.dart';
 import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/data/proxy/mfa.dart';
 import 'package:mobile/data/proxy/mfa_flow.dart' as wire;
-import 'package:mobile/enterprise/postures.dart';
 import 'package:mobile/open/client_headers_interceptor.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
@@ -21,22 +20,12 @@ const _apiV1Segments = ['api', 'v1'];
 final enrollmentPathSegments = ['api', 'v1', 'enrollment'];
 final mfaPathSegments = ['api', 'v1', 'client-mfa'];
 final mfaFlowPathSegments = [..._apiV1Segments, 'mfa-flow'];
-final posturePathSegments = ['api', 'v1', 'posture'];
 
 const _iosConnectionLostCode = '-1005';
 
 bool _isMfaEndpoint(Uri uri) =>
     uri.pathSegments.contains(mfaPathSegments.last) ||
     uri.pathSegments.contains(mfaFlowPathSegments.last);
-
-class PostureCheckException implements Exception {
-  final String message;
-
-  const PostureCheckException(this.message);
-
-  @override
-  String toString() => 'Posture error: $message';
-}
 
 class MfaMethodNotAvailableException implements Exception {
   final MfaMethod method;
@@ -371,39 +360,6 @@ class ProxyApi {
     } catch (e) {
       talker.error('Invalid MFA flow start response: ${e.runtimeType}');
       throw const FormatException('Invalid MFA flow start response');
-    }
-  }
-
-  Future<PostureConnectResponse> postureConnect(
-    Uri url,
-    PostureConnectRequest data,
-  ) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...posturePathSegments, 'connect'],
-    );
-
-    try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
-      return PostureConnectResponse.fromJson(response.data);
-    } on DioException catch (e) {
-      final responseData = e.response?.data;
-      if (e.response?.statusCode == 403 &&
-          responseData is Map<String, dynamic>) {
-        final error = responseData['error'] ?? responseData['message'];
-        if (error is String) {
-          throw PostureCheckException(error);
-        }
-      }
-      if (e.response != null) {
-        throw HttpException(
-          'Failed to perform posture check. Status: ${e.response?.statusCode} Body: ${e.response?.data}',
-        );
-      }
-      rethrow;
-    } catch (e) {
-      throw FormatException(
-        'Invalid JSON sent by posture check endpoint! Error: $e',
-      );
     }
   }
 

@@ -66,7 +66,7 @@ void main() {
     expect(adapter.requests.single.uri.path, '/base/api/v1/client-mfa/start');
     expect(
       adapter.bodies.single,
-      '{"pubkey":"device-pubkey","location_id":11,"method":0,"posture_data":null}',
+      '{"pubkey":"device-pubkey","location_id":11,"method":0}',
     );
 
     adapter.requests.clear();
@@ -112,7 +112,7 @@ void main() {
       expect(
         adapter.bodies.single,
         '{"location_id":11,"pubkey":"device-pubkey",'
-        '"posture_data":null,"selected_methods":[0,1]}',
+        '"selected_methods":[0,1]}',
       );
     },
   );

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:drift/drift.dart' as drift;
 import 'package:material_ui/material_ui.dart';
@@ -8,7 +7,6 @@ import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
 import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/plugin/plugin.dart';
-import 'package:mobile/enterprise/postures.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
@@ -50,17 +48,6 @@ class ConnectResult {
     this.logMessage,
     this.error,
   }) : status = ConnectStatus.failed;
-}
-
-/// Outcome of a single pre-connect step (MFA, posture check). [presharedKey] is
-/// set when the step succeeded and [failure] when it failed with something the
-/// user should be told about; both stay null when the user simply backed out.
-class _StepOutcome {
-  final String? presharedKey;
-  final ConnectResult? failure;
-
-  const _StepOutcome.success(this.presharedKey) : failure = null;
-  const _StepOutcome.failed(this.failure) : presharedKey = null;
 }
 
 /// Handles MFA flows and tunnel connection
@@ -131,7 +118,6 @@ class TunnelService {
           plan: plan,
           devicePubkey: payload.devicePublicKey,
           networkId: payload.networkId,
-          postureData: payload.postureCheckRequired ? await getPosture() : null,
           refreshPlan: instance.mfaContract == MfaContract.multiStep
               ? () async {
                   final retry = await _refreshMfaPlan(
@@ -184,20 +170,12 @@ class TunnelService {
       final completedPlan = flow.controller.plan;
       authorizedWith = completedPlan.length == 1 ? completedPlan.single : null;
     } else if (payload.postureCheckRequired) {
-      final pollingToken = await instance.pollingToken();
-      if (pollingToken == null) {
-        reportMissingSecret(instance.logName, "Proxy token");
-        return const ConnectResult.failed(message: missingSecretsMessage);
-      }
-      final postureOutcome = await _performPostureCheck(
-        proxyUrl: instance.proxyUrl,
-        payload: payload,
-        pollingToken: pollingToken,
+      // Device posture checks were part of the Defguard enterprise edition and are not
+      // supported by XGuard; current servers never require them.
+      return const ConnectResult.failed(
+        message:
+            'This location requires device posture checks, which XGuard does not support.',
       );
-      if (postureOutcome.failure != null) {
-        return postureOutcome.failure!;
-      }
-      payload.presharedKey = postureOutcome.presharedKey;
     }
 
     await wireguardPlugin.startTunnel(jsonEncode(payload.toJson()));
@@ -332,66 +310,6 @@ class TunnelService {
   /// Whether the location has an MFA flow to satisfy. Legacy single-mode
   /// locations are normalized into a one-step flow by `effectiveMfaSteps`.
   static bool checkMfaEnabled(Location location) => shouldStartMfa(location);
-
-  /// Performs posture-only authorization and returns runtime preshared key.
-  static Future<_StepOutcome> _performPostureCheck({
-    required String proxyUrl,
-    required PluginConnectPayload payload,
-    required String pollingToken,
-  }) async {
-    try {
-      final presharedKey = await _authorizePostureOnly(
-        proxyUrl,
-        payload.devicePublicKey,
-        payload.networkId,
-        pollingToken,
-      );
-      return _StepOutcome.success(presharedKey);
-    } on PostureCheckException catch (e) {
-      return _StepOutcome.failed(
-        ConnectResult.failed(
-          message: e.message,
-          logMessage: 'Posture check failed',
-          error: e,
-        ),
-      );
-    } on HttpException catch (e) {
-      return _StepOutcome.failed(
-        ConnectResult.failed(
-          message: 'Posture check request failed. Please try again.',
-          logMessage: 'Posture check request failed',
-          error: e,
-        ),
-      );
-    } catch (e) {
-      return _StepOutcome.failed(
-        ConnectResult.failed(
-          message: 'Posture check failed. Please try again.',
-          logMessage: 'Posture-only connect failed!',
-          error: e,
-        ),
-      );
-    }
-  }
-
-  /// Calls `/posture/connect` endpoint and returns runtime preshared key.
-  static Future<String> _authorizePostureOnly(
-    String url,
-    String pubkey,
-    int networkId,
-    String pollingToken,
-  ) async {
-    talker.debug('Starting posture check for networkId: $networkId');
-    final request = PostureConnectRequest(
-      locationId: networkId,
-      pubkey: pubkey,
-      devicePostureData: await getPosture(),
-      token: pollingToken,
-    );
-
-    final response = await proxyApi.postureConnect(Uri.parse(url), request);
-    return response.presharedKey;
-  }
 
   static PluginConnectPayload _makePayload(
     XGuardInstance instance,

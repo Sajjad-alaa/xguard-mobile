@@ -18,18 +18,11 @@ StartMfaRequest _$StartMfaRequestFromJson(Map<String, dynamic> json) =>
             'method',
             (v) => $enumDecode(_$MfaMethodEnumMap, v),
           ),
-          postureData: $checkedConvert(
-            'posture_data',
-            (v) => v == null
-                ? null
-                : DevicePostureData.fromJson(v as Map<String, dynamic>),
-          ),
         );
         return val;
       },
       fieldKeyMap: const {
         'locationId': 'location_id',
-        'postureData': 'posture_data',
       },
     );
 
@@ -37,7 +30,6 @@ const _$StartMfaRequestFieldMap = <String, String>{
   'pubkey': 'pubkey',
   'locationId': 'location_id',
   'method': 'method',
-  'postureData': 'posture_data',
 };
 
 Map<String, dynamic> _$StartMfaRequestToJson(StartMfaRequest instance) =>
@@ -45,7 +37,6 @@ Map<String, dynamic> _$StartMfaRequestToJson(StartMfaRequest instance) =>
       'pubkey': instance.pubkey,
       'location_id': instance.locationId,
       'method': _$MfaMethodEnumMap[instance.method]!,
-      'posture_data': instance.postureData,
     };
 
 const _$MfaMethodEnumMap = {

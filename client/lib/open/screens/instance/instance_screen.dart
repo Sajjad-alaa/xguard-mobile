@@ -9,7 +9,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/plugin/plugin.dart';
-import 'package:mobile/enterprise/refresh_instance.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
 import 'package:mobile/open/riverpod/plugin/plugin.dart';
@@ -33,7 +32,6 @@ import 'package:mobile/router/routes.dart';
 import 'package:mobile/theme/color.dart';
 import 'package:mobile/theme/spacing.dart';
 import 'package:mobile/theme/text.dart';
-import 'package:mobile/utils/instance_secrets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wireguard_plugin/wireguard_plugin.dart';
@@ -95,37 +93,6 @@ class InstanceScreen extends HookConsumerWidget {
     final biometricStatus = ref.watch(biometricsCapabilityProvider);
     final isSingleAsync = ref.watch(isSingleInstanceProvider);
     final isDeleting = useState(false);
-    final toaster = ref.read(toastManagerProvider.notifier);
-
-    final onRefresh = useCallback(() async {
-      final instance = screenDataAsync.value?.instance;
-      if (instance == null) return;
-      final db = ref.read(databaseProvider);
-      switch (await refreshInstance(db, instance)) {
-        case .refreshed:
-          toaster.show(message: "Instance information updated");
-        case .licenseError:
-          final updated = await db.managers.xguardInstances
-              .filter((f) => f.id(instance.id))
-              .getSingleOrNull();
-          if (updated == null || !context.mounted) return;
-          toaster.show(
-            message:
-                "Automatic refresh is unavailable, refresh the instance manually.",
-          );
-          unawaited(
-            RefreshInstanceScreenRoute(
-              RefreshInstanceScreenData(instance: updated),
-            ).push(context),
-          );
-        case .missingToken:
-          toaster.showError(message: missingSecretsMessage);
-        case .failed:
-          toaster.showError(
-            message: "Failed to get new information for instance.",
-          );
-      }
-    }, [screenDataAsync.value, ref, context]);
 
     final onDeleteInstance = useCallback(() async {
       try {
@@ -229,15 +196,6 @@ class InstanceScreen extends HookConsumerWidget {
                     wireguardPlugin: wireguardPlugin,
                     biometricStatus: biometricStatus,
                   );
-
-                  if (data.instance.enterpriseEnabled) {
-                    content = RefreshIndicator(
-                      color: DgColor.bgWhite100,
-                      backgroundColor: DgColor.bgDarkBlue80,
-                      onRefresh: onRefresh,
-                      child: content,
-                    );
-                  }
 
                   return content;
                 },

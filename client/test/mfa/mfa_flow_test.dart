@@ -5,7 +5,6 @@ import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
 import 'package:mobile/data/proxy/mfa.dart';
-import 'package:mobile/enterprise/postures.dart';
 
 class _FakeTransport implements MfaTransport {
   final Queue<Object> startAnswers;
@@ -30,7 +29,6 @@ class _FakeTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   }) async {
     calls.add('start');
     plans.add(List.of(plan));

@@ -188,8 +188,7 @@ Future<void> _handleSubmit(
   final enrolmentResponse = await proxyApi.startEnrollment(uri, requestData);
   if (!enrolmentResponse.user.enrolled) {
     toaster.showError(
-      message:
-          "Enrol via the XGuard Desktop App first to add mobile devices.",
+      message: "Enrol via the XGuard Desktop App first to add mobile devices.",
     );
     return;
   }

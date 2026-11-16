@@ -422,8 +422,7 @@ class XGuardInstancesData extends DataClass
           other.mfaKeysStored == this.mfaKeysStored);
 }
 
-class XGuardInstancesCompanion
-    extends UpdateCompanion<XGuardInstancesData> {
+class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstancesData> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> uuid;

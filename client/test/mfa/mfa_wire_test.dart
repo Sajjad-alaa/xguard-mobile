@@ -17,11 +17,11 @@ const _completed =
     r'{"result":{"outcome":{"Completed":{"preshared_key":"psk"}}}}';
 const _awaiting = r'{"result":{"outcome":{"AwaitingExternal":{}}}}';
 const _legacyStartRequest =
-    r'{"location_id":11,"pubkey":"device-pubkey","method":0,"posture_data":null}';
+    r'{"location_id":11,"pubkey":"device-pubkey","method":0}';
 const _legacyFinishRequest =
     r'{"token":"legacy-token","code":"signature","auth_pub_key":"auth-public-key"}';
 const _flowStartRequest =
-    r'{"location_id":11,"pubkey":"device-pubkey","posture_data":null,"selected_methods":[0,1]}';
+    r'{"location_id":11,"pubkey":"device-pubkey","selected_methods":[0,1]}';
 const _flowStepStartRequest = r'{"token":"flow-token","method":1}';
 const _flowCodeFinishRequest =
     r'{"token":"flow-token","step_attempt_id":"attempt-id","submission":{"Code":{"code":"123456"}}}';

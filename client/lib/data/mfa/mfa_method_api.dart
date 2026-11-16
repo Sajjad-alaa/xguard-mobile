@@ -1,5 +1,4 @@
 import 'package:mobile/data/db/enums.dart';
-import 'package:mobile/enterprise/fido2_support.dart';
 
 /// MFA methods as the proxy sends them, mirroring `MfaMethod` in
 /// `proto/common/client_types.proto`. Values this client cannot perform are
@@ -32,16 +31,16 @@ enum ApiMfaMethod {
   MfaMethod? get supported => switch (this) {
     totp => MfaMethod.totp,
     email => MfaMethod.email,
-    oidc => MfaMethod.openid,
     biometric => MfaMethod.biometric,
-    fido2 => fido2Supported ? MfaMethod.fido2 : null,
-    mobileApprove || unknown => null,
+    // OpenID and FIDO2 MFA are not supported by XGuard.
+    oidc || fido2 || mobileApprove || unknown => null,
   };
 
   /// Row label for a method [supported] cannot map. Supported methods are named
   /// by [MfaMethod.toUiString] instead.
   String get unsupportedLabel => switch (this) {
     mobileApprove => "Mobile approval",
+    oidc => "OpenID",
     fido2 => "FIDO2 Security Key",
     _ => "Unsupported method",
   };

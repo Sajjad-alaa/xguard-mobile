@@ -1,6 +1,5 @@
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
-import 'package:mobile/enterprise/postures.dart';
 
 /// What the server said about the proof just submitted.
 sealed class MfaStepProgress {
@@ -26,7 +25,6 @@ class MfaFlowController {
   List<MfaMethod> _plan;
   final String devicePubkey;
   final int networkId;
-  final DevicePostureData? postureData;
   final MfaTransport transport;
   final MfaPlanRefresh? refreshPlan;
 
@@ -45,7 +43,6 @@ class MfaFlowController {
     required List<MfaMethod> plan,
     required this.devicePubkey,
     required this.networkId,
-    this.postureData,
     this.refreshPlan,
   }) : _plan = List.unmodifiable(plan),
        assert(plan.isNotEmpty, 'a flow needs at least one step');
@@ -111,7 +108,6 @@ class MfaFlowController {
     devicePubkey: devicePubkey,
     networkId: networkId,
     plan: _plan,
-    postureData: postureData,
   );
 
   void _setStep(MfaStepChallenge step) {

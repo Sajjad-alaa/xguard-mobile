@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
-import 'package:mobile/enterprise/postures.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_chrome.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_flow.dart';
 
@@ -19,7 +18,6 @@ class _StubTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
-    DevicePostureData? postureData,
   }) async => MfaSessionStart(
     token: 'token',
     firstStep: const MfaStepChallenge(stepAttemptId: 'first-attempt'),

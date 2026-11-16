@@ -9,7 +9,6 @@ part of 'mfa_flow.dart';
 const _$MfaFlowStartRequestFieldMap = <String, String>{
   'locationId': 'location_id',
   'pubkey': 'pubkey',
-  'postureData': 'posture_data',
   'selectedMethods': 'selected_methods',
 };
 
@@ -18,7 +17,6 @@ Map<String, dynamic> _$MfaFlowStartRequestToJson(
 ) => <String, dynamic>{
   'location_id': instance.locationId,
   'pubkey': instance.pubkey,
-  'posture_data': instance.postureData,
   'selected_methods': instance.selectedMethods
       .map((e) => _$MfaMethodEnumMap[e]!)
       .toList(),

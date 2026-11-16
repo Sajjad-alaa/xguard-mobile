@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/db/enums.dart';
@@ -265,10 +264,6 @@ void main() {
       biometricAvailable: true,
       contract: MfaContract.legacy,
     );
-    const multiStep = MfaCapabilities(
-      biometricAvailable: true,
-      contract: MfaContract.multiStep,
-    );
 
     test('hides factors this client cannot perform', () {
       final step = _step([_entry(MfaMethod.totp), _unsupported]);
@@ -286,18 +281,6 @@ void main() {
     test('falls back to the raw list when nothing is supported', () {
       final step = _step([_unsupported]);
       expect(pickableMfaMethods(step, capabilities: legacy), [_unsupported]);
-    });
-
-    test('offers FIDO2 only on the multi-step contract', () {
-      final step = _step([_entry(MfaMethod.totp), _entry(MfaMethod.fido2)]);
-      expect(
-        pickableMfaMethods(step, capabilities: legacy).map((e) => e.method),
-        [MfaMethod.totp],
-      );
-      expect(
-        pickableMfaMethods(step, capabilities: multiStep).map((e) => e.method),
-        [MfaMethod.totp, MfaMethod.fido2],
-      );
     });
   });
 
@@ -665,156 +648,6 @@ void main() {
 
     test('names the step count for the badge', () {
       expect(mfaStepsToText(3), '3-step verification');
-    });
-  });
-
-  group('FIDO2 availability', () {
-    const fido2 = MfaStepMethod(
-      apiMethod: ApiMfaMethod.fido2,
-      configured: true,
-    );
-
-    tearDown(() => debugDefaultTargetPlatformOverride = null);
-
-    test('is usable on Android', () {
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      expect(
-        mfaMethodAvailability(
-          fido2,
-          capabilities: MfaCapabilities(
-            biometricAvailable: false,
-            contract: MfaContract.multiStep,
-          ),
-        ),
-        MfaMethodAvailability.usable,
-      );
-      expect(
-        resolveMfaStepPlan(
-          _location(
-            steps: [
-              _step([fido2]),
-            ],
-          ),
-          capabilities: MfaCapabilities(
-            biometricAvailable: false,
-            contract: MfaContract.multiStep,
-          ),
-        ),
-        [MfaMethod.fido2],
-      );
-    });
-
-    test('is usable on iOS', () {
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-      expect(
-        mfaMethodAvailability(
-          fido2,
-          capabilities: MfaCapabilities(
-            biometricAvailable: false,
-            contract: MfaContract.multiStep,
-          ),
-        ),
-        MfaMethodAvailability.usable,
-      );
-      expect(
-        resolveMfaStepPlan(
-          _location(
-            steps: [
-              _step([fido2]),
-            ],
-          ),
-          capabilities: MfaCapabilities(
-            biometricAvailable: false,
-            contract: MfaContract.multiStep,
-          ),
-        ),
-        [MfaMethod.fido2],
-      );
-    });
-
-    test('is unavailable on the legacy contract', () {
-      expect(
-        mfaMethodAvailability(
-          fido2,
-          capabilities: MfaCapabilities(
-            biometricAvailable: true,
-            contract: MfaContract.legacy,
-          ),
-        ),
-        MfaMethodAvailability.unsupported,
-      );
-      expect(
-        usableMfaMethods(
-          _step([fido2]),
-          capabilities: MfaCapabilities(
-            biometricAvailable: true,
-            contract: MfaContract.legacy,
-          ),
-        ),
-        isEmpty,
-      );
-    });
-
-    test('is not usable before a key is registered', () {
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      expect(
-        mfaMethodAvailability(
-          const MfaStepMethod(
-            apiMethod: ApiMfaMethod.fido2,
-            configured: false,
-          ),
-          capabilities: MfaCapabilities(
-            biometricAvailable: true,
-            contract: MfaContract.multiStep,
-          ),
-        ),
-        MfaMethodAvailability.notConfigured,
-      );
-    });
-
-    group('unpassable reason', () {
-      final capabilities = MfaCapabilities(
-        biometricAvailable: false,
-        contract: MfaContract.multiStep,
-      );
-
-      MfaUnpassableReason? reasonFor(List<MfaStepMethod> methods) =>
-          unpassableStepReason(
-            _location(steps: [_step(methods)]),
-            capabilities: capabilities,
-          );
-
-      setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.android);
-
-      test('asks for a registered key when only FIDO2 is unconfigured', () {
-        expect(
-          reasonFor([
-            _entry(MfaMethod.fido2, configured: false),
-            _unsupported,
-          ]),
-          MfaUnpassableReason.registerSecurityKey,
-        );
-      });
-
-      test('stays generic when another method is unconfigured too', () {
-        expect(
-          reasonFor([
-            _entry(MfaMethod.fido2, configured: false),
-            _entry(MfaMethod.totp, configured: false),
-          ]),
-          MfaUnpassableReason.notConfigured,
-        );
-      });
-
-      test('still prefers biometry setup', () {
-        expect(
-          reasonFor([
-            _entry(MfaMethod.fido2, configured: false),
-            _entry(MfaMethod.biometric),
-          ]),
-          MfaUnpassableReason.setUpBiometry,
-        );
-      });
     });
   });
 }
