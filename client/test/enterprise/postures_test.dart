@@ -44,7 +44,7 @@ void main() {
         ),
       );
 
-      expect(json['defguard_client_version'], '1.6.0');
+      expect(json['xguard_client_version'], '1.6.0');
       expect(json['os_type'], 'Android');
       expect(json['os_name'], _value('14'));
       expect(json['os_version'], _value('14'));

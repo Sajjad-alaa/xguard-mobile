@@ -1,5 +1,5 @@
 name: Internal issue
-description: Internal Defguard team use only
+description: Internal XGuard team use only
 labels:
   - internal
 type: task
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This template is intended for internal Defguard team use.
+        This template is intended for internal XGuard team use.
 
   - type: textarea
     id: description

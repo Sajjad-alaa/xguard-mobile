@@ -16,7 +16,7 @@ const _paneDuration = Duration(milliseconds: 250);
 const _paneCurve = Curves.easeOut;
 
 class ConnectDialog extends HookConsumerWidget {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final Location location;
   final Future<ConnectResult> Function(
     RoutingMethod traffic,

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-const _plugin = MethodChannel('net.defguard.qr_plugin');
+const _plugin = MethodChannel('local.xguard.qr_plugin');
 
 enum QrScannerError { permissionDenied, noCamera, cameraError }
 
@@ -42,7 +42,7 @@ class QrScannerController {
 
   final int _id = _nextId++;
   late final MethodChannel _channel = MethodChannel(
-    'net.defguard.qr_plugin/scanner_$_id',
+    'local.xguard.qr_plugin/scanner_$_id',
   );
   bool _running = true;
   bool _attached = false;

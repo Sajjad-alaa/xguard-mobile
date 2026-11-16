@@ -22,7 +22,7 @@ class ConnectPane extends StatelessWidget {
 
   final List<MfaMethod?> savedPlan;
   final MfaCapabilities capabilities;
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final bool allTraffic;
   final bool canChangeTraffic;
   final bool isLoading;
@@ -151,7 +151,7 @@ class _StepSummary extends StatelessWidget {
   final List<MfaStep> steps;
   final List<MfaMethod?> plan;
   final MfaCapabilities capabilities;
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const _StepSummary({
     required this.steps,
@@ -201,7 +201,7 @@ class _MethodPicker extends StatelessWidget {
   final MfaMethod? selected;
   final MfaMethod? savedDefault;
   final MfaCapabilities capabilities;
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final ValueChanged<MfaMethod> onSelected;
 
   const _MethodPicker({

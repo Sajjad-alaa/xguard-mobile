@@ -18,7 +18,7 @@ import 'package:rxdart/rxdart.dart';
 part 'instances_list_screen.g.dart';
 
 class _InstanceItemData {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final int locationsCount;
   final int connectedCount;
 
@@ -34,11 +34,11 @@ Stream<List<_InstanceItemData>> _instancesListData(Ref ref) {
   final db = ref.watch(databaseProvider);
   final activeTunnel = ref.watch(pluginActiveTunnelStateProvider);
 
-  final instancesStream = db.select(db.defguardInstances).watch();
+  final instancesStream = db.select(db.xguardInstances).watch();
   final locationsStream = db.select(db.locations).watch();
 
   return Rx.combineLatest2<
-    List<DefguardInstance>,
+    List<XGuardInstance>,
     List<Location>,
     List<_InstanceItemData>
   >(instancesStream, locationsStream, (instances, locations) {

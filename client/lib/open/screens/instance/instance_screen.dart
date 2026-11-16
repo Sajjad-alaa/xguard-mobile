@@ -41,7 +41,7 @@ import 'package:wireguard_plugin/wireguard_plugin.dart';
 part 'instance_screen.g.dart';
 
 class _ScreenData {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final List<Location> locations;
 
   const _ScreenData({required this.instance, required this.locations});
@@ -53,19 +53,19 @@ Stream<_ScreenData?> _screenData(Ref ref, String id) {
   final parsedId = int.tryParse(id);
   if (parsedId == null) return Stream.value(null);
 
-  final query = db.select(db.defguardInstances).join([
+  final query = db.select(db.xguardInstances).join([
     drift.leftOuterJoin(
       db.locations,
-      db.locations.instance.equalsExp(db.defguardInstances.id),
+      db.locations.instance.equalsExp(db.xguardInstances.id),
     ),
-  ])..where(db.defguardInstances.id.equals(parsedId));
+  ])..where(db.xguardInstances.id.equals(parsedId));
 
   return query.watch().map((rows) {
     if (rows.isEmpty) {
       return null;
     }
 
-    final instance = rows.first.readTable(db.defguardInstances);
+    final instance = rows.first.readTable(db.xguardInstances);
     final locations = rows
         .map((row) => row.readTableOrNull(db.locations))
         .whereType<Location>()
@@ -105,7 +105,7 @@ class InstanceScreen extends HookConsumerWidget {
         case .refreshed:
           toaster.show(message: "Instance information updated");
         case .licenseError:
-          final updated = await db.managers.defguardInstances
+          final updated = await db.managers.xguardInstances
               .filter((f) => f.id(instance.id))
               .getSingleOrNull();
           if (updated == null || !context.mounted) return;
@@ -141,7 +141,7 @@ class InstanceScreen extends HookConsumerWidget {
         if (confirmed == true && context.mounted) {
           talker.info("Instance deleted, determining next route...");
           final db = ref.read(databaseProvider);
-          final instances = await db.select(db.defguardInstances).get();
+          final instances = await db.select(db.xguardInstances).get();
 
           if (!context.mounted) return;
 
@@ -177,7 +177,7 @@ class InstanceScreen extends HookConsumerWidget {
         Future.microtask(() async {
           if (!context.mounted) return;
           final db = ref.read(databaseProvider);
-          final instances = await db.select(db.defguardInstances).get();
+          final instances = await db.select(db.xguardInstances).get();
           if (!context.mounted) return;
 
           if (instances.isEmpty) {

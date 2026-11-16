@@ -13,7 +13,7 @@ import 'package:mobile/logging.dart';
 import 'package:mobile/open/widgets/toaster/toast_manager.dart';
 
 class RemoteMfaQrScreenData {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const RemoteMfaQrScreenData({required this.instance});
 }

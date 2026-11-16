@@ -30,7 +30,7 @@ enum State {
     /// Adapter state.
     private var state: State = .stopped
     /// Serialize tunnel I/O and connection state changes off the main queue.
-    private let ioQueue = DispatchQueue(label: "net.defguard.VPNExtension.adapter")
+    private let ioQueue = DispatchQueue(label: "local.xguard.VPNExtension.adapter")
     private let ioQueueKey = DispatchSpecificKey<Void>()
 
     /// For statistics returned to Rust code.

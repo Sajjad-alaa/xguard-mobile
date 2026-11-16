@@ -12,7 +12,7 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.net.defguard.mobile</string>
+		<string>group.local.xguard.mobile</string>
 	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>

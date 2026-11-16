@@ -6,7 +6,7 @@ import 'package:mobile/theme/spacing.dart';
 const agreementPrefsKey = "DATA_GATHERING_AGREEMENT";
 
 const noticeMessage =
-    "This app connects your device to your organisation’s private Defguard instance. Defguard (the app developer) does not collect or store your data - only your organisation controls it. Diagnostic logs stay on your device only.";
+    "This app connects your device to your organisation’s private XGuard instance. XGuard (the app developer) does not collect or store your data - only your organisation controls it. Diagnostic logs stay on your device only.";
 
 class DataGatheringDialog extends StatelessWidget {
   const DataGatheringDialog({super.key});

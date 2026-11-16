@@ -29,7 +29,7 @@ class AppSplash extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final db = ref.watch(databaseProvider);
     final instancesAsync = useStream(
-      useMemoized(() => db.select(db.defguardInstances).watch(), [db]),
+      useMemoized(() => db.select(db.xguardInstances).watch(), [db]),
     );
 
     final timerDone = useState(false);

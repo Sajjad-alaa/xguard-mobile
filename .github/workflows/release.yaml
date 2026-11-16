@@ -22,9 +22,9 @@ jobs:
         with:
           draft: true
           files: |
-            ./artifacts/Defguard.ipa
-            ./artifacts/Defguard.aab
-            ./artifacts/Defguard.apk
+            ./artifacts/XGuard.ipa
+            ./artifacts/XGuard.aab
+            ./artifacts/XGuard.apk
 
   create-sbom:
     needs: [create-release]

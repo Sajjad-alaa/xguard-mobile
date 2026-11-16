@@ -27,7 +27,7 @@ class UpdateInstanceResult {
 
 Future<UpdateInstanceResult?> updateInstance({
   required AppDatabase db,
-  required DefguardInstance instance,
+  required XGuardInstance instance,
   required List<DeviceConfig> configs,
   InstanceInfo? info,
   String? token,
@@ -52,9 +52,9 @@ Future<UpdateInstanceResult?> updateInstance({
         .filter((row) => row.instance.id.equals(instance.id))
         .get();
     await db.transaction(() async {
-      if (info != null && !info.matchesDefguardInstance(instance)) {
+      if (info != null && !info.matchesXGuardInstance(instance)) {
         final companion = info.toCompanion(instance: instance);
-        await db.managers.defguardInstances
+        await db.managers.xguardInstances
             .filter((row) => row.uuid.equals(instance.uuid))
             .update((_) => companion);
         result.instanceChanged = true;

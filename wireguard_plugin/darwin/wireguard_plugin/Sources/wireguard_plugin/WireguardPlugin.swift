@@ -53,11 +53,11 @@ public class WireguardPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let methodChannel = FlutterMethodChannel(
-            name: "net.defguard.wireguard_plugin/channel",
+            name: "local.xguard.wireguard_plugin/channel",
             binaryMessenger: registrar.messenger()
         )
         let eventChannel = FlutterEventChannel(
-            name: "net.defguard.wireguard_plugin/event",
+            name: "local.xguard.wireguard_plugin/event",
             binaryMessenger: registrar.messenger()
         )
 
@@ -334,7 +334,7 @@ public class WireguardPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
         logger.log("Starting tunnel with config: \(String(describing: config))")
 
         vpnManager.loadProviderManager { manager in
-            let appId = Bundle.main.bundleIdentifier ?? "net.defguard.mobile"
+            let appId = Bundle.main.bundleIdentifier ?? "local.xguard.mobile"
             let providerManager = manager ?? NETunnelProviderManager()
             let tunnelProtocol = NETunnelProviderProtocol()
             tunnelProtocol.providerBundleIdentifier = "\(appId).VPNExtension"

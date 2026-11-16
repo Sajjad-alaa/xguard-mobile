@@ -68,7 +68,7 @@ class Int32Check {
 
 @JsonSerializable()
 class DevicePostureData {
-  final String defguardClientVersion;
+  final String xguardClientVersion;
   final String osType;
   final StringCheck? osName;
   final StringCheck? osVersion;
@@ -81,7 +81,7 @@ class DevicePostureData {
   final StringCheck? androidSecurityPatchDate;
 
   const DevicePostureData({
-    required this.defguardClientVersion,
+    required this.xguardClientVersion,
     required this.osType,
     this.osName,
     this.osVersion,
@@ -139,7 +139,7 @@ Future<DevicePostureData> getPosture() async {
 DevicePostureData devicePostureData(ClientIdentity identity) {
   final facts = identity.facts;
   return DevicePostureData(
-    defguardClientVersion: identity.version,
+    xguardClientVersion: identity.version,
     osType: facts.osType,
     osName: StringCheck.value(facts.osName),
     osVersion: facts.kind == PlatformKind.other
@@ -147,7 +147,7 @@ DevicePostureData devicePostureData(ClientIdentity identity) {
         : StringCheck.value(facts.osVersion),
     deviceIntegrity: facts.kind == PlatformKind.android
         // TODO: implement full google play integrity check flow
-        // TODO: https://github.com/DefGuard/defguard/issues/2986
+        // TODO: https://github.com/Sajjad-alaa/xguard-core/issues/2986
         ? BoolCheck.unavailable(UnavailableReason.unspecified)
         : BoolCheck.unavailable(UnavailableReason.notApplicable),
     diskEncryption: BoolCheck.unavailable(UnavailableReason.notApplicable),

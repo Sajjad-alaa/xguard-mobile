@@ -44,14 +44,14 @@ class AddInstanceQrScreen extends HookConsumerWidget {
             if (!registrationResponse.user.enrolled) {
               toaster.showError(
                 message:
-                    "Enrol via the Defguard Desktop App first to add mobile devices.",
+                    "Enrol via the XGuard Desktop App first to add mobile devices.",
               );
               isLoading.value = false;
               await controller.resume();
               return;
             }
             final instanceId = registrationResponse.instance.id;
-            final dbInstance = await db.managers.defguardInstances
+            final dbInstance = await db.managers.xguardInstances
                 .filter((row) => row.uuid.equals(instanceId))
                 .getSingleOrNull();
 

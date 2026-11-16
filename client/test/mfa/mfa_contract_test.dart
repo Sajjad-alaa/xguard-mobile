@@ -59,8 +59,8 @@ void main() {
   const base = <String, dynamic>{
     'id': 'instance-id',
     'name': 'instance',
-    'url': 'https://defguard.example',
-    'proxy_url': 'https://proxy.defguard.example',
+    'url': 'https://xguard.example',
+    'proxy_url': 'https://proxy.xguard.example',
     'username': 'user',
     'enterprise_enabled': false,
     'disable_all_traffic': false,
@@ -98,14 +98,14 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await db
-        .into(db.defguardInstances)
+        .into(db.xguardInstances)
         .insert(
-          DefguardInstancesCompanion.insert(
+          XGuardInstancesCompanion.insert(
             name: 'instance',
             uuid: 'instance-id',
-            url: 'https://defguard.example',
+            url: 'https://xguard.example',
             deviceId: 7,
-            proxyUrl: 'https://proxy.defguard.example',
+            proxyUrl: 'https://proxy.xguard.example',
             username: 'user',
             enterpriseEnabled: false,
             pubKey: 'public-key',
@@ -113,7 +113,7 @@ void main() {
           ),
         );
 
-    var instance = await db.select(db.defguardInstances).getSingle();
+    var instance = await db.select(db.xguardInstances).getSingle();
     expect(instance.mfaContract, MfaContract.legacy);
 
     final promoted = await updateInstance(
@@ -126,7 +126,7 @@ void main() {
       }),
     );
     expect(promoted?.instanceChanged, isTrue);
-    instance = await db.select(db.defguardInstances).getSingle();
+    instance = await db.select(db.xguardInstances).getSingle();
     expect(instance.mfaContract, MfaContract.multiStep);
 
     final demoted = await updateInstance(
@@ -136,7 +136,7 @@ void main() {
       info: InstanceInfo.fromJson(base),
     );
     expect(demoted?.instanceChanged, isTrue);
-    instance = await db.select(db.defguardInstances).getSingle();
+    instance = await db.select(db.xguardInstances).getSingle();
     expect(instance.mfaContract, MfaContract.legacy);
   });
 
@@ -146,14 +146,14 @@ void main() {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       await db
-          .into(db.defguardInstances)
+          .into(db.xguardInstances)
           .insert(
-            DefguardInstancesCompanion.insert(
+            XGuardInstancesCompanion.insert(
               name: 'instance',
               uuid: 'instance-id',
-              url: 'https://defguard.example',
+              url: 'https://xguard.example',
               deviceId: 7,
-              proxyUrl: 'https://proxy.defguard.example',
+              proxyUrl: 'https://proxy.xguard.example',
               username: 'user',
               enterpriseEnabled: false,
               pubKey: 'public-key',
@@ -161,7 +161,7 @@ void main() {
             ),
           );
 
-      var instance = await db.select(db.defguardInstances).getSingle();
+      var instance = await db.select(db.xguardInstances).getSingle();
       final promoted = await updateInstance(
         db: db,
         instance: instance,
@@ -172,7 +172,7 @@ void main() {
         }),
       );
       expect(promoted?.locationsAdded, 1);
-      instance = await db.select(db.defguardInstances).getSingle();
+      instance = await db.select(db.xguardInstances).getSingle();
       expect(instance.mfaContract, MfaContract.multiStep);
 
       final transport = _RejectingFlowTransport();
@@ -189,7 +189,7 @@ void main() {
             info: InstanceInfo.fromJson(base),
           );
           if (result == null) return null;
-          final refreshed = await db.select(db.defguardInstances).getSingle();
+          final refreshed = await db.select(db.xguardInstances).getSingle();
           final refreshedLocation = await db.select(db.locations).getSingle();
           expect(refreshedLocation.networkId, 11);
           expect(
@@ -213,7 +213,7 @@ void main() {
         controller.startStep(),
         throwsA(isA<MfaStartRejectedException>()),
       );
-      final refreshed = await db.select(db.defguardInstances).getSingle();
+      final refreshed = await db.select(db.xguardInstances).getSingle();
       expect(refreshed.mfaContract, MfaContract.legacy);
       expect(transport.startCalls, 1);
     },

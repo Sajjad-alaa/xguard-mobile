@@ -18,7 +18,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: net.defguard.qr_plugin
+        package: local.xguard.qr_plugin
         pluginClass: QrPlugin
       ios:
         pluginClass: QrPlugin

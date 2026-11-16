@@ -8,11 +8,11 @@ class MethodChannelWireguardPlugin extends WireguardPluginPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel(
-    'net.defguard.wireguard_plugin/channel',
+    'local.xguard.wireguard_plugin/channel',
   );
 
   static const EventChannel _eventChannel = EventChannel(
-    'net.defguard.wireguard_plugin/event',
+    'local.xguard.wireguard_plugin/event',
   );
 
   @override

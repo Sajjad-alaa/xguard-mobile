@@ -9,7 +9,7 @@ import {
 } from "./helpers/biometrics.js";
 import { projectRoot, sharedConfig } from "./wdio.shared.conf.js";
 
-const APP_PACKAGE = "net.defguard.mobile";
+const APP_PACKAGE = "local.xguard.mobile";
 const APP_ACTIVITY = ".MainActivity";
 const APK_PATH = "../client/build/app/outputs/flutter-apk/app-debug.apk";
 

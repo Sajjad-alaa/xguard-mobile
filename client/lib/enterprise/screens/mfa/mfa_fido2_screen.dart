@@ -92,7 +92,7 @@ class MfaFido2Screen extends HookConsumerWidget {
             toaster.showError(
               message:
                   "Your security key was not accepted. Use a key registered "
-                  "in the Defguard desktop client and enter its PIN.",
+                  "in the XGuard desktop client and enter its PIN.",
               logMessage: "FIDO2 MFA assertion rejected",
               error: e,
             );

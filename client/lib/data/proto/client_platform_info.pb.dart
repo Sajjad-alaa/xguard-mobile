@@ -48,7 +48,7 @@ class ClientPlatformInfo extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ClientPlatformInfo',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'defguard.proxy'),
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'xguard.proxy'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'osFamily')
     ..aOS(2, _omitFieldNames ? '' : 'osType')

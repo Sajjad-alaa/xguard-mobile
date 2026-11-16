@@ -1,6 +1,6 @@
 # fido2_plugin
 
-FIDO2 security key assertions used by the defguard mobile client for connect-time MFA.
+FIDO2 security key assertions used by the xguard mobile client for connect-time MFA.
 
 - Android: yubikit-android CTAP2 over NFC reader mode.
 - iOS: yubikit-swift CTAP2 over a Core NFC ISO 7816 session. Needs iOS 16 and a Swift 6.1 toolchain (Xcode 16.3+).

@@ -64,9 +64,9 @@ class PluginEventRouter extends Notifier<void> {
           'VPN gateway unreachable, MFA session expired. Reconnect to continue.',
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
-          'defguard_channel',
-          'DefGuard',
-          channelDescription: 'DefGuard VPN notifications',
+          'xguard_channel',
+          'XGuard',
+          channelDescription: 'XGuard VPN notifications',
           importance: Importance.max,
           priority: Priority.high,
           ticker: 'ticker',

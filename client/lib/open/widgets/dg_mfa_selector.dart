@@ -49,7 +49,7 @@ class DgMfaSelector extends StatelessWidget {
 
   /// Names a factor with no [MfaMethod], and overrides the label otherwise.
   final String? label;
-  final DefguardInstance? instance;
+  final XGuardInstance? instance;
 
   /// Marks the row as the saved default for its step.
   final bool isDefault;

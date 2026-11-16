@@ -298,7 +298,7 @@ class InstanceInfo {
 
   Map<String, dynamic> toJson() => _$InstanceInfoToJson(this);
 
-  bool matchesDefguardInstance(DefguardInstance other) {
+  bool matchesXGuardInstance(XGuardInstance other) {
     return id == other.uuid &&
         name == other.name &&
         url == other.url &&
@@ -311,8 +311,8 @@ class InstanceInfo {
         mfaContract == other.mfaContract;
   }
 
-  DefguardInstancesCompanion toCompanion({DefguardInstance? instance}) {
-    return DefguardInstancesCompanion(
+  XGuardInstancesCompanion toCompanion({XGuardInstance? instance}) {
+    return XGuardInstancesCompanion(
       id: d.Value.absentIfNull(instance?.id),
       pubKey: d.Value.absentIfNull(instance?.pubKey),
       mfaKeysStored: d.Value.absentIfNull(instance?.mfaKeysStored),

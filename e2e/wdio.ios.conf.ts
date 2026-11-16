@@ -4,7 +4,7 @@ import path from "node:path";
 import { prepareBiometrics, resetFaceId } from "./helpers/biometrics.js";
 import { projectRoot, sharedConfig } from "./wdio.shared.conf.js";
 
-const BUNDLE_ID = "net.defguard.mobile";
+const BUNDLE_ID = "local.xguard.mobile";
 const APP_BUNDLE = "../client/build/ios/iphonesimulator/Runner.app";
 
 const app = path.resolve(projectRoot, APP_BUNDLE);

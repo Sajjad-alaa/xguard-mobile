@@ -17,7 +17,7 @@ class MfaSettingsPane extends StatelessWidget {
   final List<MfaMethod?> savedPlan;
 
   final MfaCapabilities capabilities;
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final bool isSaving;
   final void Function(int step, MfaMethod method) onSelected;
   final VoidCallback onBack;
@@ -107,7 +107,7 @@ class _StepSection extends StatelessWidget {
   final MfaMethod? selected;
   final MfaMethod? savedDefault;
   final MfaCapabilities capabilities;
-  final DefguardInstance instance;
+  final XGuardInstance instance;
   final ValueChanged<MfaMethod> onSelected;
 
   const _StepSection({

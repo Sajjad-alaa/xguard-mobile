@@ -98,7 +98,7 @@ class AddInstanceScreen extends HookConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 13),
                           child: Text(
-                            "To connect this device to your Defguard instance, you need to add it to your Defguard profile, or if you are enrolling, the instance details should already be shown",
+                            "To connect this device to your XGuard instance, you need to add it to your XGuard profile, or if you are enrolling, the instance details should already be shown",
                             style: DgText.bodyXs400.copyWith(
                               color: DgColor.fgWhite60,
                             ),

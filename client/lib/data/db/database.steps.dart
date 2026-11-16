@@ -9,12 +9,12 @@ final class Schema2 extends i0.VersionedSchema {
   Schema2({required super.database}) : super(version: 2);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape0 defguardInstances = Shape0(
+  late final Shape0 xguardInstances = Shape0(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -237,7 +237,7 @@ i1.GeneratedColumn<int> _column_13(String aliasedName) =>
       false,
       type: i1.DriftSqlType.int,
       defaultConstraints: i1.GeneratedColumn.constraintIsAlways(
-        'REFERENCES defguard_instances (id) ON DELETE CASCADE',
+        'REFERENCES xguard_instances (id) ON DELETE CASCADE',
       ),
     );
 i1.GeneratedColumn<int> _column_14(String aliasedName) =>
@@ -318,12 +318,12 @@ final class Schema3 extends i0.VersionedSchema {
   Schema3({required super.database}) : super(version: 3);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape2 defguardInstances = Shape2(
+  late final Shape2 xguardInstances = Shape2(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -419,12 +419,12 @@ final class Schema4 extends i0.VersionedSchema {
   Schema4({required super.database}) : super(version: 4);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape2 defguardInstances = Shape2(
+  late final Shape2 xguardInstances = Shape2(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -526,12 +526,12 @@ final class Schema5 extends i0.VersionedSchema {
   Schema5({required super.database}) : super(version: 5);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape4 defguardInstances = Shape4(
+  late final Shape4 xguardInstances = Shape4(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -750,7 +750,7 @@ i1.GeneratedColumn<int> _column_38(String aliasedName) =>
       false,
       type: i1.DriftSqlType.int,
       $customConstraints:
-          'NOT NULL REFERENCES defguard_instances(id)ON DELETE CASCADE',
+          'NOT NULL REFERENCES xguard_instances(id)ON DELETE CASCADE',
     );
 i1.GeneratedColumn<int> _column_39(String aliasedName) =>
     i1.GeneratedColumn<int>(
@@ -845,12 +845,12 @@ final class Schema6 extends i0.VersionedSchema {
   Schema6({required super.database}) : super(version: 6);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape4 defguardInstances = Shape4(
+  late final Shape4 xguardInstances = Shape4(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -964,12 +964,12 @@ final class Schema7 extends i0.VersionedSchema {
   Schema7({required super.database}) : super(version: 7);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape7 defguardInstances = Shape7(
+  late final Shape7 xguardInstances = Shape7(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],
@@ -1066,12 +1066,12 @@ final class Schema8 extends i0.VersionedSchema {
   Schema8({required super.database}) : super(version: 8);
   @override
   late final List<i1.DatabaseSchemaEntity> entities = [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
-  late final Shape8 defguardInstances = Shape8(
+  late final Shape8 xguardInstances = Shape8(
     source: i0.VersionedTable(
-      entityName: 'defguard_instances',
+      entityName: 'xguard_instances',
       withoutRowId: false,
       isStrict: false,
       tableConstraints: [],

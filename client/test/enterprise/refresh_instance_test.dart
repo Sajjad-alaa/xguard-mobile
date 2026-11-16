@@ -38,8 +38,8 @@ class _StubAdapter implements HttpClientAdapter {
 const _instanceJson = <String, dynamic>{
   'id': 'instance-id',
   'name': 'instance',
-  'url': 'https://defguard.example',
-  'proxy_url': 'https://proxy.defguard.example',
+  'url': 'https://xguard.example',
+  'proxy_url': 'https://proxy.xguard.example',
   'username': 'user',
   'enterprise_enabled': true,
   'disable_all_traffic': false,
@@ -50,7 +50,7 @@ void main() {
   late _StubAdapter adapter;
   late ProxyApi api;
   late AppDatabase db;
-  late DefguardInstance instance;
+  late XGuardInstance instance;
 
   setUp(() async {
     adapter = _StubAdapter();
@@ -65,14 +65,14 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await db
-        .into(db.defguardInstances)
+        .into(db.xguardInstances)
         .insert(
-          DefguardInstancesCompanion.insert(
+          XGuardInstancesCompanion.insert(
             name: 'instance',
             uuid: 'instance-id',
-            url: 'https://defguard.example',
+            url: 'https://xguard.example',
             deviceId: 7,
-            proxyUrl: 'https://proxy.defguard.example',
+            proxyUrl: 'https://proxy.xguard.example',
             username: 'user',
             enterpriseEnabled: true,
             clientTrafficPolicy: const drift.Value(
@@ -82,7 +82,7 @@ void main() {
             mfaKeysStored: false,
           ),
         );
-    instance = await db.select(db.defguardInstances).getSingle();
+    instance = await db.select(db.xguardInstances).getSingle();
   });
 
   test('successful poll refreshes the instance', () async {
@@ -101,7 +101,7 @@ void main() {
     final outcome = await refreshInstance(db, instance, api: api);
 
     expect(outcome, InstanceRefreshOutcome.licenseError);
-    final updated = await db.select(db.defguardInstances).getSingle();
+    final updated = await db.select(db.xguardInstances).getSingle();
     expect(updated.enterpriseEnabled, isFalse);
     expect(updated.clientTrafficPolicy, ClientTrafficPolicy.none);
   });
@@ -112,7 +112,7 @@ void main() {
     final outcome = await refreshInstance(db, instance, api: api);
 
     expect(outcome, InstanceRefreshOutcome.failed);
-    final unchanged = await db.select(db.defguardInstances).getSingle();
+    final unchanged = await db.select(db.xguardInstances).getSingle();
     expect(unchanged.enterpriseEnabled, isTrue);
   });
 

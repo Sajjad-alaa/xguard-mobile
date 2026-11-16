@@ -15,7 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dg_icon_button.dart';
 import 'icons/dg_icon.dart';
 
-const String _helpUrl = "https://docs.defguard.net/support";
+const String _helpUrl = "https://docs.xguard.local/support";
 
 sealed class _DrawerEntry {}
 
@@ -37,10 +37,10 @@ class _DrawerItemData extends _DrawerEntry {
 
 class _DrawerDividerData extends _DrawerEntry {}
 
-final allInstancesProvider = StreamProvider.autoDispose<List<DefguardInstance>>(
+final allInstancesProvider = StreamProvider.autoDispose<List<XGuardInstance>>(
   (ref) {
     final db = ref.watch(databaseProvider);
-    return db.select(db.defguardInstances).watch();
+    return db.select(db.xguardInstances).watch();
   },
 );
 

@@ -34,7 +34,7 @@ class _App extends ConsumerWidget {
 
     return MaterialApp.router(
       routerConfig: router,
-      theme: defguardThemeData,
+      theme: xguardThemeData,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
         flutter_material.DefaultMaterialLocalizations.delegate,

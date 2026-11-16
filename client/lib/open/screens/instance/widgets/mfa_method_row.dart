@@ -16,7 +16,7 @@ String availabilityNote(MfaMethodAvailability availability) =>
 Widget mfaMethodRow({
   required MfaStepMethod entry,
   required MfaCapabilities capabilities,
-  required DefguardInstance instance,
+  required XGuardInstance instance,
   required MfaMethod? selected,
   required MfaMethod? savedDefault,
   required ValueChanged<MfaMethod> onSelected,

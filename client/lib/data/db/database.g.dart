@@ -3,12 +3,12 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $DefguardInstancesTable extends DefguardInstances
-    with TableInfo<$DefguardInstancesTable, DefguardInstance> {
+class $XGuardInstancesTable extends XGuardInstances
+    with TableInfo<$XGuardInstancesTable, XGuardInstance> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DefguardInstancesTable(this.attachedDatabase, [this._alias]);
+  $XGuardInstancesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -93,7 +93,7 @@ class $DefguardInstancesTable extends DefguardInstances
         requiredDuringInsert: false,
         defaultValue: const Constant(0),
       ).withConverter<ClientTrafficPolicy>(
-        $DefguardInstancesTable.$converterclientTrafficPolicy,
+        $XGuardInstancesTable.$converterclientTrafficPolicy,
       );
   static const VerificationMeta _enterpriseEnabledMeta = const VerificationMeta(
     'enterpriseEnabled',
@@ -154,7 +154,7 @@ class $DefguardInstancesTable extends DefguardInstances
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<OpenIdProvider?>(
-        $DefguardInstancesTable.$converteropenidProviderKindn,
+        $XGuardInstancesTable.$converteropenidProviderKindn,
       );
   @override
   late final GeneratedColumnWithTypeConverter<MfaContract, String> mfaContract =
@@ -166,7 +166,7 @@ class $DefguardInstancesTable extends DefguardInstances
         requiredDuringInsert: false,
         defaultValue: const Constant('legacy'),
       ).withConverter<MfaContract>(
-        $DefguardInstancesTable.$convertermfaContract,
+        $XGuardInstancesTable.$convertermfaContract,
       );
   @override
   List<GeneratedColumn> get $columns => [
@@ -189,10 +189,10 @@ class $DefguardInstancesTable extends DefguardInstances
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'defguard_instances';
+  static const String $name = 'xguard_instances';
   @override
   VerificationContext validateIntegrity(
-    Insertable<DefguardInstance> instance, {
+    Insertable<XGuardInstance> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -293,9 +293,9 @@ class $DefguardInstancesTable extends DefguardInstances
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  DefguardInstance map(Map<String, dynamic> data, {String? tablePrefix}) {
+  XGuardInstance map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DefguardInstance(
+    return XGuardInstance(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -324,7 +324,7 @@ class $DefguardInstancesTable extends DefguardInstances
         DriftSqlType.string,
         data['${effectivePrefix}username'],
       )!,
-      clientTrafficPolicy: $DefguardInstancesTable.$converterclientTrafficPolicy
+      clientTrafficPolicy: $XGuardInstancesTable.$converterclientTrafficPolicy
           .fromSql(
             attachedDatabase.typeMapping.read(
               DriftSqlType.int,
@@ -347,14 +347,14 @@ class $DefguardInstancesTable extends DefguardInstances
         DriftSqlType.string,
         data['${effectivePrefix}openid_display_name'],
       ),
-      openidProviderKind: $DefguardInstancesTable.$converteropenidProviderKindn
+      openidProviderKind: $XGuardInstancesTable.$converteropenidProviderKindn
           .fromSql(
             attachedDatabase.typeMapping.read(
               DriftSqlType.string,
               data['${effectivePrefix}openid_provider_kind'],
             ),
           ),
-      mfaContract: $DefguardInstancesTable.$convertermfaContract.fromSql(
+      mfaContract: $XGuardInstancesTable.$convertermfaContract.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}mfa_contract'],
@@ -364,8 +364,8 @@ class $DefguardInstancesTable extends DefguardInstances
   }
 
   @override
-  $DefguardInstancesTable createAlias(String alias) {
-    return $DefguardInstancesTable(attachedDatabase, alias);
+  $XGuardInstancesTable createAlias(String alias) {
+    return $XGuardInstancesTable(attachedDatabase, alias);
   }
 
   static TypeConverter<ClientTrafficPolicy, int> $converterclientTrafficPolicy =
@@ -382,8 +382,8 @@ class $DefguardInstancesTable extends DefguardInstances
       const EnumNameConverter<MfaContract>(MfaContract.values);
 }
 
-class DefguardInstance extends DataClass
-    implements Insertable<DefguardInstance> {
+class XGuardInstance extends DataClass
+    implements Insertable<XGuardInstance> {
   final int id;
   final String name;
   final String uuid;
@@ -398,7 +398,7 @@ class DefguardInstance extends DataClass
   final String? openidDisplayName;
   final OpenIdProvider? openidProviderKind;
   final MfaContract mfaContract;
-  const DefguardInstance({
+  const XGuardInstance({
     required this.id,
     required this.name,
     required this.uuid,
@@ -426,7 +426,7 @@ class DefguardInstance extends DataClass
     map['username'] = Variable<String>(username);
     {
       map['client_traffic_policy'] = Variable<int>(
-        $DefguardInstancesTable.$converterclientTrafficPolicy.toSql(
+        $XGuardInstancesTable.$converterclientTrafficPolicy.toSql(
           clientTrafficPolicy,
         ),
       );
@@ -439,21 +439,21 @@ class DefguardInstance extends DataClass
     }
     if (!nullToAbsent || openidProviderKind != null) {
       map['openid_provider_kind'] = Variable<String>(
-        $DefguardInstancesTable.$converteropenidProviderKindn.toSql(
+        $XGuardInstancesTable.$converteropenidProviderKindn.toSql(
           openidProviderKind,
         ),
       );
     }
     {
       map['mfa_contract'] = Variable<String>(
-        $DefguardInstancesTable.$convertermfaContract.toSql(mfaContract),
+        $XGuardInstancesTable.$convertermfaContract.toSql(mfaContract),
       );
     }
     return map;
   }
 
-  DefguardInstancesCompanion toCompanion(bool nullToAbsent) {
-    return DefguardInstancesCompanion(
+  XGuardInstancesCompanion toCompanion(bool nullToAbsent) {
+    return XGuardInstancesCompanion(
       id: Value(id),
       name: Value(name),
       uuid: Value(uuid),
@@ -475,12 +475,12 @@ class DefguardInstance extends DataClass
     );
   }
 
-  factory DefguardInstance.fromJson(
+  factory XGuardInstance.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DefguardInstance(
+    return XGuardInstance(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       uuid: serializer.fromJson<String>(json['uuid']),
@@ -497,9 +497,9 @@ class DefguardInstance extends DataClass
       openidDisplayName: serializer.fromJson<String?>(
         json['openidDisplayName'],
       ),
-      openidProviderKind: $DefguardInstancesTable.$converteropenidProviderKindn
+      openidProviderKind: $XGuardInstancesTable.$converteropenidProviderKindn
           .fromJson(serializer.fromJson<String?>(json['openidProviderKind'])),
-      mfaContract: $DefguardInstancesTable.$convertermfaContract.fromJson(
+      mfaContract: $XGuardInstancesTable.$convertermfaContract.fromJson(
         serializer.fromJson<String>(json['mfaContract']),
       ),
     );
@@ -523,17 +523,17 @@ class DefguardInstance extends DataClass
       'mfaKeysStored': serializer.toJson<bool>(mfaKeysStored),
       'openidDisplayName': serializer.toJson<String?>(openidDisplayName),
       'openidProviderKind': serializer.toJson<String?>(
-        $DefguardInstancesTable.$converteropenidProviderKindn.toJson(
+        $XGuardInstancesTable.$converteropenidProviderKindn.toJson(
           openidProviderKind,
         ),
       ),
       'mfaContract': serializer.toJson<String>(
-        $DefguardInstancesTable.$convertermfaContract.toJson(mfaContract),
+        $XGuardInstancesTable.$convertermfaContract.toJson(mfaContract),
       ),
     };
   }
 
-  DefguardInstance copyWith({
+  XGuardInstance copyWith({
     int? id,
     String? name,
     String? uuid,
@@ -548,7 +548,7 @@ class DefguardInstance extends DataClass
     Value<String?> openidDisplayName = const Value.absent(),
     Value<OpenIdProvider?> openidProviderKind = const Value.absent(),
     MfaContract? mfaContract,
-  }) => DefguardInstance(
+  }) => XGuardInstance(
     id: id ?? this.id,
     name: name ?? this.name,
     uuid: uuid ?? this.uuid,
@@ -568,8 +568,8 @@ class DefguardInstance extends DataClass
         : this.openidProviderKind,
     mfaContract: mfaContract ?? this.mfaContract,
   );
-  DefguardInstance copyWithCompanion(DefguardInstancesCompanion data) {
-    return DefguardInstance(
+  XGuardInstance copyWithCompanion(XGuardInstancesCompanion data) {
+    return XGuardInstance(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
@@ -601,7 +601,7 @@ class DefguardInstance extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('DefguardInstance(')
+    return (StringBuffer('XGuardInstance(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('uuid: $uuid, ')
@@ -640,7 +640,7 @@ class DefguardInstance extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DefguardInstance &&
+      (other is XGuardInstance &&
           other.id == this.id &&
           other.name == this.name &&
           other.uuid == this.uuid &&
@@ -657,7 +657,7 @@ class DefguardInstance extends DataClass
           other.mfaContract == this.mfaContract);
 }
 
-class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
+class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> uuid;
@@ -672,7 +672,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
   final Value<String?> openidDisplayName;
   final Value<OpenIdProvider?> openidProviderKind;
   final Value<MfaContract> mfaContract;
-  const DefguardInstancesCompanion({
+  const XGuardInstancesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.uuid = const Value.absent(),
@@ -688,7 +688,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
     this.openidProviderKind = const Value.absent(),
     this.mfaContract = const Value.absent(),
   });
-  DefguardInstancesCompanion.insert({
+  XGuardInstancesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String uuid,
@@ -712,7 +712,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
        enterpriseEnabled = Value(enterpriseEnabled),
        pubKey = Value(pubKey),
        mfaKeysStored = Value(mfaKeysStored);
-  static Insertable<DefguardInstance> custom({
+  static Insertable<XGuardInstance> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? uuid,
@@ -748,7 +748,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
     });
   }
 
-  DefguardInstancesCompanion copyWith({
+  XGuardInstancesCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
     Value<String>? uuid,
@@ -764,7 +764,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
     Value<OpenIdProvider?>? openidProviderKind,
     Value<MfaContract>? mfaContract,
   }) {
-    return DefguardInstancesCompanion(
+    return XGuardInstancesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       uuid: uuid ?? this.uuid,
@@ -808,7 +808,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
     }
     if (clientTrafficPolicy.present) {
       map['client_traffic_policy'] = Variable<int>(
-        $DefguardInstancesTable.$converterclientTrafficPolicy.toSql(
+        $XGuardInstancesTable.$converterclientTrafficPolicy.toSql(
           clientTrafficPolicy.value,
         ),
       );
@@ -827,14 +827,14 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
     }
     if (openidProviderKind.present) {
       map['openid_provider_kind'] = Variable<String>(
-        $DefguardInstancesTable.$converteropenidProviderKindn.toSql(
+        $XGuardInstancesTable.$converteropenidProviderKindn.toSql(
           openidProviderKind.value,
         ),
       );
     }
     if (mfaContract.present) {
       map['mfa_contract'] = Variable<String>(
-        $DefguardInstancesTable.$convertermfaContract.toSql(mfaContract.value),
+        $XGuardInstancesTable.$convertermfaContract.toSql(mfaContract.value),
       );
     }
     return map;
@@ -842,7 +842,7 @@ class DefguardInstancesCompanion extends UpdateCompanion<DefguardInstance> {
 
   @override
   String toString() {
-    return (StringBuffer('DefguardInstancesCompanion(')
+    return (StringBuffer('XGuardInstancesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('uuid: $uuid, ')
@@ -892,7 +892,7 @@ class $LocationsTable extends Locations
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES defguard_instances (id) ON DELETE CASCADE',
+      'REFERENCES xguard_instances (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _networkIdMeta = const VerificationMeta(
@@ -1859,22 +1859,22 @@ class LocationsCompanion extends UpdateCompanion<Location> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $DefguardInstancesTable defguardInstances =
-      $DefguardInstancesTable(this);
+  late final $XGuardInstancesTable xguardInstances =
+      $XGuardInstancesTable(this);
   late final $LocationsTable locations = $LocationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    defguardInstances,
+    xguardInstances,
     locations,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
-        'defguard_instances',
+        'xguard_instances',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('locations', kind: UpdateKind.delete)],
@@ -1882,8 +1882,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
-typedef $$DefguardInstancesTableCreateCompanionBuilder =
-    DefguardInstancesCompanion Function({
+typedef $$XGuardInstancesTableCreateCompanionBuilder =
+    XGuardInstancesCompanion Function({
       Value<int> id,
       required String name,
       required String uuid,
@@ -1899,8 +1899,8 @@ typedef $$DefguardInstancesTableCreateCompanionBuilder =
       Value<OpenIdProvider?> openidProviderKind,
       Value<MfaContract> mfaContract,
     });
-typedef $$DefguardInstancesTableUpdateCompanionBuilder =
-    DefguardInstancesCompanion Function({
+typedef $$XGuardInstancesTableUpdateCompanionBuilder =
+    XGuardInstancesCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String> uuid,
@@ -1917,14 +1917,14 @@ typedef $$DefguardInstancesTableUpdateCompanionBuilder =
       Value<MfaContract> mfaContract,
     });
 
-final class $$DefguardInstancesTableReferences
+final class $$XGuardInstancesTableReferences
     extends
         BaseReferences<
           _$AppDatabase,
-          $DefguardInstancesTable,
-          DefguardInstance
+          $XGuardInstancesTable,
+          XGuardInstance
         > {
-  $$DefguardInstancesTableReferences(
+  $$XGuardInstancesTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
@@ -1933,7 +1933,7 @@ final class $$DefguardInstancesTableReferences
   static MultiTypedResultKey<$LocationsTable, List<Location>>
   _locationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.locations,
-    aliasName: 'defguard_instances__id__locations__instance',
+    aliasName: 'xguard_instances__id__locations__instance',
   );
 
   $$LocationsTableProcessedTableManager get locationsRefs {
@@ -1949,9 +1949,9 @@ final class $$DefguardInstancesTableReferences
   }
 }
 
-class $$DefguardInstancesTableFilterComposer
-    extends Composer<_$AppDatabase, $DefguardInstancesTable> {
-  $$DefguardInstancesTableFilterComposer({
+class $$XGuardInstancesTableFilterComposer
+    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
+  $$XGuardInstancesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2057,9 +2057,9 @@ class $$DefguardInstancesTableFilterComposer
   }
 }
 
-class $$DefguardInstancesTableOrderingComposer
-    extends Composer<_$AppDatabase, $DefguardInstancesTable> {
-  $$DefguardInstancesTableOrderingComposer({
+class $$XGuardInstancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
+  $$XGuardInstancesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2137,9 +2137,9 @@ class $$DefguardInstancesTableOrderingComposer
   );
 }
 
-class $$DefguardInstancesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DefguardInstancesTable> {
-  $$DefguardInstancesTableAnnotationComposer({
+class $$XGuardInstancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
+  $$XGuardInstancesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2229,34 +2229,34 @@ class $$DefguardInstancesTableAnnotationComposer
   }
 }
 
-class $$DefguardInstancesTableTableManager
+class $$XGuardInstancesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $DefguardInstancesTable,
-          DefguardInstance,
-          $$DefguardInstancesTableFilterComposer,
-          $$DefguardInstancesTableOrderingComposer,
-          $$DefguardInstancesTableAnnotationComposer,
-          $$DefguardInstancesTableCreateCompanionBuilder,
-          $$DefguardInstancesTableUpdateCompanionBuilder,
-          (DefguardInstance, $$DefguardInstancesTableReferences),
-          DefguardInstance,
+          $XGuardInstancesTable,
+          XGuardInstance,
+          $$XGuardInstancesTableFilterComposer,
+          $$XGuardInstancesTableOrderingComposer,
+          $$XGuardInstancesTableAnnotationComposer,
+          $$XGuardInstancesTableCreateCompanionBuilder,
+          $$XGuardInstancesTableUpdateCompanionBuilder,
+          (XGuardInstance, $$XGuardInstancesTableReferences),
+          XGuardInstance,
           PrefetchHooks Function({bool locationsRefs})
         > {
-  $$DefguardInstancesTableTableManager(
+  $$XGuardInstancesTableTableManager(
     _$AppDatabase db,
-    $DefguardInstancesTable table,
+    $XGuardInstancesTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$DefguardInstancesTableFilterComposer($db: db, $table: table),
+              $$XGuardInstancesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$DefguardInstancesTableOrderingComposer($db: db, $table: table),
+              $$XGuardInstancesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$DefguardInstancesTableAnnotationComposer(
+              $$XGuardInstancesTableAnnotationComposer(
                 $db: db,
                 $table: table,
               ),
@@ -2278,7 +2278,7 @@ class $$DefguardInstancesTableTableManager
                 Value<OpenIdProvider?> openidProviderKind =
                     const Value.absent(),
                 Value<MfaContract> mfaContract = const Value.absent(),
-              }) => DefguardInstancesCompanion(
+              }) => XGuardInstancesCompanion(
                 id: id,
                 name: name,
                 uuid: uuid,
@@ -2312,7 +2312,7 @@ class $$DefguardInstancesTableTableManager
                 Value<OpenIdProvider?> openidProviderKind =
                     const Value.absent(),
                 Value<MfaContract> mfaContract = const Value.absent(),
-              }) => DefguardInstancesCompanion.insert(
+              }) => XGuardInstancesCompanion.insert(
                 id: id,
                 name: name,
                 uuid: uuid,
@@ -2331,8 +2331,8 @@ class $$DefguardInstancesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$DefguardInstancesTable, DefguardInstance>(table),
-                  $$DefguardInstancesTableReferences(db, table, e),
+                  e.readTable<$XGuardInstancesTable, XGuardInstance>(table),
+                  $$XGuardInstancesTableReferences(db, table, e),
                 ),
               )
               .toList(),
@@ -2345,15 +2345,15 @@ class $$DefguardInstancesTableTableManager
                 return [
                   if (locationsRefs)
                     await $_getPrefetchedData<
-                      DefguardInstance,
-                      $DefguardInstancesTable,
+                      XGuardInstance,
+                      $XGuardInstancesTable,
                       Location
                     >(
                       currentTable: table,
-                      referencedTable: $$DefguardInstancesTableReferences
+                      referencedTable: $$XGuardInstancesTableReferences
                           ._locationsRefsTable(db),
                       managerFromTypedResult: (p0) =>
-                          $$DefguardInstancesTableReferences(
+                          $$XGuardInstancesTableReferences(
                             db,
                             table,
                             p0,
@@ -2370,18 +2370,18 @@ class $$DefguardInstancesTableTableManager
       );
 }
 
-typedef $$DefguardInstancesTableProcessedTableManager =
+typedef $$XGuardInstancesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $DefguardInstancesTable,
-      DefguardInstance,
-      $$DefguardInstancesTableFilterComposer,
-      $$DefguardInstancesTableOrderingComposer,
-      $$DefguardInstancesTableAnnotationComposer,
-      $$DefguardInstancesTableCreateCompanionBuilder,
-      $$DefguardInstancesTableUpdateCompanionBuilder,
-      (DefguardInstance, $$DefguardInstancesTableReferences),
-      DefguardInstance,
+      $XGuardInstancesTable,
+      XGuardInstance,
+      $$XGuardInstancesTableFilterComposer,
+      $$XGuardInstancesTableOrderingComposer,
+      $$XGuardInstancesTableAnnotationComposer,
+      $$XGuardInstancesTableCreateCompanionBuilder,
+      $$XGuardInstancesTableUpdateCompanionBuilder,
+      (XGuardInstance, $$XGuardInstancesTableReferences),
+      XGuardInstance,
       PrefetchHooks Function({bool locationsRefs})
     >;
 typedef $$LocationsTableCreateCompanionBuilder =
@@ -2429,16 +2429,16 @@ final class $$LocationsTableReferences
     extends BaseReferences<_$AppDatabase, $LocationsTable, Location> {
   $$LocationsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $DefguardInstancesTable _instanceTable(_$AppDatabase db) => db
-      .defguardInstances
-      .createAlias('locations__instance__defguard_instances__id');
+  static $XGuardInstancesTable _instanceTable(_$AppDatabase db) => db
+      .xguardInstances
+      .createAlias('locations__instance__xguard_instances__id');
 
-  $$DefguardInstancesTableProcessedTableManager get instance {
+  $$XGuardInstancesTableProcessedTableManager get instance {
     final $_column = $_itemColumn<int>('instance')!;
 
-    final manager = $$DefguardInstancesTableTableManager(
+    final manager = $$XGuardInstancesTableTableManager(
       $_db,
-      $_db.defguardInstances,
+      $_db.xguardInstances,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_instanceTable($_db));
     if (item == null) return manager;
@@ -2542,20 +2542,20 @@ class $$LocationsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  $$DefguardInstancesTableFilterComposer get instance {
-    final $$DefguardInstancesTableFilterComposer composer = $composerBuilder(
+  $$XGuardInstancesTableFilterComposer get instance {
+    final $$XGuardInstancesTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.instance,
-      referencedTable: $db.defguardInstances,
+      referencedTable: $db.xguardInstances,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DefguardInstancesTableFilterComposer(
+          }) => $$XGuardInstancesTableFilterComposer(
             $db: $db,
-            $table: $db.defguardInstances,
+            $table: $db.xguardInstances,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2655,20 +2655,20 @@ class $$LocationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$DefguardInstancesTableOrderingComposer get instance {
-    final $$DefguardInstancesTableOrderingComposer composer = $composerBuilder(
+  $$XGuardInstancesTableOrderingComposer get instance {
+    final $$XGuardInstancesTableOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.instance,
-      referencedTable: $db.defguardInstances,
+      referencedTable: $db.xguardInstances,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DefguardInstancesTableOrderingComposer(
+          }) => $$XGuardInstancesTableOrderingComposer(
             $db: $db,
-            $table: $db.defguardInstances,
+            $table: $db.xguardInstances,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2753,21 +2753,21 @@ class $$LocationsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  $$DefguardInstancesTableAnnotationComposer get instance {
-    final $$DefguardInstancesTableAnnotationComposer composer =
+  $$XGuardInstancesTableAnnotationComposer get instance {
+    final $$XGuardInstancesTableAnnotationComposer composer =
         $composerBuilder(
           composer: this,
           getCurrentColumn: (t) => t.instance,
-          referencedTable: $db.defguardInstances,
+          referencedTable: $db.xguardInstances,
           getReferencedColumn: (t) => t.id,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$DefguardInstancesTableAnnotationComposer(
+              }) => $$XGuardInstancesTableAnnotationComposer(
                 $db: $db,
-                $table: $db.defguardInstances,
+                $table: $db.xguardInstances,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -2951,8 +2951,8 @@ typedef $$LocationsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$DefguardInstancesTableTableManager get defguardInstances =>
-      $$DefguardInstancesTableTableManager(_db, _db.defguardInstances);
+  $$XGuardInstancesTableTableManager get xguardInstances =>
+      $$XGuardInstancesTableTableManager(_db, _db.xguardInstances);
   $$LocationsTableTableManager get locations =>
       $$LocationsTableTableManager(_db, _db.locations);
 }

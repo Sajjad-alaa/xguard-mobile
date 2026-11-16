@@ -1,4 +1,4 @@
-# Defguard mobile client
+# XGuard mobile client
 
 ## Getting Started
 

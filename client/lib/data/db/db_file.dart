@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 /// Name drift builds the database file from, see `AppDatabase._openConnection`.
-const databaseName = 'defguard';
+const databaseName = 'xguard';
 
 /// The file drift stores the database in.
 ///

@@ -33,10 +33,10 @@ class BiometrySetupScreen extends StatelessWidget {
   }
 }
 
-final biometryScreenDataProvider = StreamProvider.family<DefguardInstance, int>(
+final biometryScreenDataProvider = StreamProvider.family<XGuardInstance, int>(
   (ref, id) {
     final db = ref.read(databaseProvider);
-    return db.managers.defguardInstances
+    return db.managers.xguardInstances
         .filter((row) => row.id.equals(id))
         .watchSingle();
   },
@@ -128,7 +128,7 @@ class _ScreenContent extends HookConsumerWidget {
     }, [instanceId]);
 
     final handleRegister = useCallback((
-      DefguardInstance instance,
+      XGuardInstance instance,
       BuildContext context,
     ) async {
       isLoading.value = true;
@@ -142,11 +142,11 @@ class _ScreenContent extends HookConsumerWidget {
           authSecret.publicKey,
           instance.pubKey,
         );
-        var instanceDb = await db.managers.defguardInstances
+        var instanceDb = await db.managers.xguardInstances
             .filter((row) => row.id.equals(instanceId))
             .getSingle();
         instanceDb = instanceDb.copyWith(mfaKeysStored: true);
-        await db.managers.defguardInstances.replace(instanceDb);
+        await db.managers.xguardInstances.replace(instanceDb);
         isLoading.value = false;
         if (context.mounted) {
           BiometryFinishScreenRoute(id: instanceId.toString()).go(context);

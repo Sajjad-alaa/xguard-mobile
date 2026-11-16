@@ -16,8 +16,8 @@ mixin AutoIncrementingPrimaryKey on Table {
   IntColumn get id => integer().autoIncrement()();
 }
 
-@DataClassName('DefguardInstance')
-class DefguardInstances extends Table with AutoIncrementingPrimaryKey {
+@DataClassName('XGuardInstance')
+class XGuardInstances extends Table with AutoIncrementingPrimaryKey {
   TextColumn get name => text()();
 
   TextColumn get uuid => text()();
@@ -57,7 +57,7 @@ class DefguardInstances extends Table with AutoIncrementingPrimaryKey {
 class Locations extends Table with AutoIncrementingPrimaryKey {
   @JsonKey('instance_id')
   IntColumn get instance => integer().references(
-    DefguardInstances,
+    XGuardInstances,
     #id,
     onDelete: KeyAction.cascade,
   )();
@@ -113,23 +113,23 @@ class Locations extends Table with AutoIncrementingPrimaryKey {
       .map(const MfaStepPlanConverter())();
 }
 
-@DriftDatabase(tables: [DefguardInstances, Locations])
+@DriftDatabase(tables: [XGuardInstances, Locations])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   Future<bool> get isSingleInstance async {
     final count =
-        await (selectOnly(defguardInstances)
-              ..addColumns([defguardInstances.id.count()]))
-            .map((row) => row.read(defguardInstances.id.count()))
+        await (selectOnly(xguardInstances)
+              ..addColumns([xguardInstances.id.count()]))
+            .map((row) => row.read(xguardInstances.id.count()))
             .getSingle();
     return count == 1;
   }
 
   Stream<bool> watchIsSingleInstance() {
-    return (selectOnly(defguardInstances)
-          ..addColumns([defguardInstances.id.count()]))
-        .map((row) => row.read(defguardInstances.id.count()))
+    return (selectOnly(xguardInstances)
+          ..addColumns([xguardInstances.id.count()]))
+        .map((row) => row.read(xguardInstances.id.count()))
         .watchSingle()
         .map((count) => count == 1);
   }
@@ -158,21 +158,21 @@ class AppDatabase extends _$AppDatabase {
           // This ensures Drift doesn't trigger a "Recreate Table" that might
           // drop 'disable_all_traffic' before we are done with it.
           await customStatement(
-            'ALTER TABLE defguard_instances ADD COLUMN client_traffic_policy INTEGER NOT NULL DEFAULT 0',
+            'ALTER TABLE xguard_instances ADD COLUMN client_traffic_policy INTEGER NOT NULL DEFAULT 0',
           );
           // 2. Update values derived from the old column
           await customStatement('''
-            UPDATE defguard_instances
+            UPDATE xguard_instances
             SET client_traffic_policy =
               CASE WHEN disable_all_traffic = 1 THEN 1 ELSE 0 END;
           ''');
           // 3. Drop old "disable_all_traffic" column
-          await m.dropColumn(defguardInstances, "disable_all_traffic");
+          await m.dropColumn(xguardInstances, "disable_all_traffic");
         },
         from2To3: (m, schema) async {
           await m.addColumn(
-            schema.defguardInstances,
-            schema.defguardInstances.openidDisplayName,
+            schema.xguardInstances,
+            schema.xguardInstances.openidDisplayName,
           );
         },
         from3To4: (m, schema) async {
@@ -189,7 +189,7 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('PRAGMA secure_delete = ON');
           final instances = await customSelect(
             'SELECT uuid, device_id, private_key, pooling_token '
-            'FROM defguard_instances',
+            'FROM xguard_instances',
           ).get();
           for (final instance in instances) {
             await storeInstanceSecrets(
@@ -199,8 +199,8 @@ class AppDatabase extends _$AppDatabase {
               pollingToken: instance.read<String>('pooling_token'),
             );
           }
-          await m.dropColumn(schema.defguardInstances, 'private_key');
-          await m.dropColumn(schema.defguardInstances, 'pooling_token');
+          await m.dropColumn(schema.xguardInstances, 'private_key');
+          await m.dropColumn(schema.xguardInstances, 'pooling_token');
         },
         from5To6: (m, schema) async {
           await m.addColumn(schema.locations, schema.locations.mfaSteps);
@@ -214,14 +214,14 @@ class AppDatabase extends _$AppDatabase {
         },
         from6To7: (m, schema) async {
           await m.addColumn(
-            schema.defguardInstances,
-            schema.defguardInstances.openidProviderKind,
+            schema.xguardInstances,
+            schema.xguardInstances.openidProviderKind,
           );
         },
         from7To8: (m, schema) async {
           await m.addColumn(
-            schema.defguardInstances,
-            schema.defguardInstances.mfaContract,
+            schema.xguardInstances,
+            schema.xguardInstances.mfaContract,
           );
         },
       ),
@@ -238,18 +238,18 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-extension DefguardInstanceLogName on DefguardInstance {
+extension XGuardInstanceLogName on XGuardInstance {
   String get logName => '$name ($id)';
 }
 
-extension DefguardInstanceStorageKey on DefguardInstance {
+extension XGuardInstanceStorageKey on XGuardInstance {
   String get secureStorageKey => mfaStorageKey(uuid, deviceId);
 }
 
 /// Secrets of an instance are kept in the platform keychain, not in the
 /// database. They can be absent (see [reportMissingSecret]), callers have to
 /// handle a `null`.
-extension DefguardInstanceSecrets on DefguardInstance {
+extension XGuardInstanceSecrets on XGuardInstance {
   Future<String?> wireguardPrivateKey() =>
       secureStorage.read(key: wireguardKeyStorageKey(uuid, deviceId));
 

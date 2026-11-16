@@ -5,7 +5,7 @@
 
 import Foundation
 
-let suiteName = "group.net.defguard.mobile"
+let suiteName = "group.local.xguard.mobile"
 
 public enum TunnelTraffic: String, Codable {
     case All = "all"

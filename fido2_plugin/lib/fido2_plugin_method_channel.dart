@@ -6,7 +6,7 @@ import 'fido2_types.dart';
 
 class MethodChannelFido2Plugin extends Fido2PluginPlatform {
   @visibleForTesting
-  final methodChannel = const MethodChannel('net.defguard.fido2_plugin');
+  final methodChannel = const MethodChannel('local.xguard.fido2_plugin');
 
   @override
   Future<Fido2NfcStatus> nfcStatus() async {

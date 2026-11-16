@@ -42,7 +42,7 @@ class NameDeviceScreen extends HookConsumerWidget {
 
   const NameDeviceScreen({super.key, required this.screenData});
 
-  Future<DefguardInstance> _handleRegistration(
+  Future<XGuardInstance> _handleRegistration(
     BuildContext context,
     AppDatabase db,
     String name,
@@ -66,7 +66,7 @@ class NameDeviceScreen extends HookConsumerWidget {
       pollingToken: createResponse.token,
     );
     try {
-      final instance = await db.managers.defguardInstances.createReturning(
+      final instance = await db.managers.xguardInstances.createReturning(
         (o) => o(
           id: drift.Value.absent(),
           pubKey: keyPair.pubKey,

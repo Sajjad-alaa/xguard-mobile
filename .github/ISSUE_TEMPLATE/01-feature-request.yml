@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea or improvement for Defguard
+description: Suggest an idea or improvement for XGuard
 title: "[Feature]: "
 labels:
   - feature
@@ -9,7 +9,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for suggesting a feature. Your feedback helps improve Defguard.
+        Thank you for suggesting a feature. Your feedback helps improve XGuard.
 
   - type: textarea
     id: problem

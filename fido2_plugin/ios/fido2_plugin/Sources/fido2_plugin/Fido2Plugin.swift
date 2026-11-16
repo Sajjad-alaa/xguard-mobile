@@ -50,7 +50,7 @@ public class Fido2Plugin: NSObject, FlutterPlugin {
     private var lastRun: Task<Void, Never>?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "net.defguard.fido2_plugin", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "local.xguard.fido2_plugin", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(Fido2Plugin(), channel: channel)
     }
 

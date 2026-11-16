@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile/theme/color.dart';
 
-final ThemeData defguardThemeData = ThemeData(
+final ThemeData xguardThemeData = ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0C8CE0)),
   scaffoldBackgroundColor: DgColor.bgAppBase,

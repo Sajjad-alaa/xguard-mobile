@@ -12,12 +12,12 @@ enum InstanceRefreshOutcome { refreshed, licenseError, missingToken, failed }
 
 Future<void> disableEnterprise(
   AppDatabase db,
-  DefguardInstance instance,
+  XGuardInstance instance,
 ) async {
   talker.warning(
     "Instance ${instance.logName} not refreshed: enterprise license unavailable (402)",
   );
-  await db.managers.defguardInstances.replace(
+  await db.managers.xguardInstances.replace(
     instance.copyWith(
       clientTrafficPolicy: .none,
       enterpriseEnabled: false,
@@ -27,7 +27,7 @@ Future<void> disableEnterprise(
 
 Future<InstanceRefreshOutcome> refreshInstance(
   AppDatabase db,
-  DefguardInstance instance, {
+  XGuardInstance instance, {
   ProxyApi? api,
 }) async {
   try {
@@ -79,7 +79,7 @@ class EnterpriseRefresh extends _$EnterpriseRefresh {
     state = true;
     try {
       final db = ref.read(databaseProvider);
-      final instances = await db.managers.defguardInstances
+      final instances = await db.managers.xguardInstances
           .filter((f) => f.enterpriseEnabled(true))
           .get();
       final outcomes = await Future.wait(

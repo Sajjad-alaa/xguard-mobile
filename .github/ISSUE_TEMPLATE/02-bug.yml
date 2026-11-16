@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a problem in Defguard so we can reproduce and fix it.
+description: Report a problem in XGuard so we can reproduce and fix it.
 title: "[Bug]: "
 labels:
   - bug
@@ -56,7 +56,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Defguard version
+      label: XGuard version
       description: Exact versions of all components.
       placeholder: "Core: v1.6.0, Gateway: v1.6.0, Edge: v1.6.0, Desktop client: v1.6.0, Mobile client: v1.6.0."
     validations:
@@ -75,7 +75,7 @@ body:
     id: deployment
     attributes:
       label: Deployment / install method
-      description: How is Defguard installed?
+      description: How is XGuard installed?
       multiple: false
       options:
         - One-line script
@@ -93,7 +93,7 @@ body:
     id: logs
     attributes:
       label: Relevant logs / output
-      description: Paste only what’s necessary. Please redact secrets (tokens, private IPs, domains) if needed. Enable DEBUG log level if you can (https://docs.defguard.net/support-1/how-to-submit-an-issue#id-1.-enable-debug-logging).
+      description: Paste only what’s necessary. Please redact secrets (tokens, private IPs, domains) if needed. Enable DEBUG log level if you can (https://docs.xguard.local/support-1/how-to-submit-an-issue#id-1.-enable-debug-logging).
       render: shell
       placeholder: |
         # Core logs

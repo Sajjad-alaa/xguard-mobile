@@ -24,9 +24,9 @@ class _StubBiometrics extends BiometricsCapability {
   );
 }
 
-const _instance = DefguardInstance(
+const _instance = XGuardInstance(
   id: 1,
-  name: 'Defguard',
+  name: 'XGuard',
   uuid: 'uuid',
   url: 'https://vpn.example',
   deviceId: 7,
@@ -167,7 +167,7 @@ void main() {
 
   testWidgets('saving writes the plan and slides back', (tester) async {
     await db
-        .into(db.defguardInstances)
+        .into(db.xguardInstances)
         .insert(_instance, mode: InsertMode.insertOrReplace);
     await db
         .into(db.locations)

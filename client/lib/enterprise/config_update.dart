@@ -33,7 +33,7 @@ class ConfigurationUpdater extends HookConsumerWidget {
       updatePending.value = true;
       List<Map<String, dynamic>> versionUnsupportedInstances = [];
       try {
-        final instances = await db.managers.defguardInstances.get();
+        final instances = await db.managers.xguardInstances.get();
         if (instances.isEmpty) {
           talker.debug("Auto configuration polling canceled, no instances.");
           updatePending.value = false;
@@ -59,9 +59,9 @@ class ConfigurationUpdater extends HookConsumerWidget {
               talker.error("Headers are null for ${instance.logName}");
               continue;
             }
-            final coreVersionStr = headers['defguard-core-version']?.first;
+            final coreVersionStr = headers['xguard-core-version']?.first;
             final proxyVersionStr =
-                headers['defguard-component-version']?.first;
+                headers['xguard-component-version']?.first;
             if (coreVersionStr == null || proxyVersionStr == null) {
               talker.error(
                 "Version headers missing for ${instance.logName}, treating as unsupported",
@@ -127,10 +127,10 @@ class ConfigurationUpdater extends HookConsumerWidget {
         if (versionUnsupportedInstances.isNotEmpty) {
           if (!hasShown.value) {
             String message =
-                "The following instances have versions that are incompatible with your Defguard Mobile Client and may not work correctly:\n\n";
+                "The following instances have versions that are incompatible with your XGuard Mobile Client and may not work correctly:\n\n";
             for (final instance in versionUnsupportedInstances) {
               message +=
-                  "- ${instance['name']}: Defguard Core ${instance['coreVersion']} (expected >=$supportedCoreVersion), Defguard Proxy ${instance['proxyVersion']} (expected >=$supportedProxyVersion)\n";
+                  "- ${instance['name']}: XGuard Core ${instance['coreVersion']} (expected >=$supportedCoreVersion), XGuard Proxy ${instance['proxyVersion']} (expected >=$supportedProxyVersion)\n";
             }
             message += "\nPlease contact your administrator.";
             toaster.show(

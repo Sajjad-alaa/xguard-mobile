@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_plugin/qr_plugin.dart';
 
-const _plugin = MethodChannel('net.defguard.qr_plugin');
+const _plugin = MethodChannel('local.xguard.qr_plugin');
 const _codec = StandardMethodCodec();
 
 TestDefaultBinaryMessenger get messenger =>
@@ -15,7 +15,7 @@ void main() {
   late int scannerId;
 
   MethodChannel scannerChannel() =>
-      MethodChannel('net.defguard.qr_plugin/scanner_$scannerId');
+      MethodChannel('local.xguard.qr_plugin/scanner_$scannerId');
 
   Future<void> sendFromNative(String method, Object? arguments) =>
       messenger.handlePlatformMessage(

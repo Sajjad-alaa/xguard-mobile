@@ -7,10 +7,10 @@ import 'package:mobile/theme/color.dart';
 
 import 'package:mobile/open/widgets/dg_preview_wrapper.dart';
 
-/// Direction enum for Defguard design system icons.
+/// Direction enum for XGuard design system icons.
 enum DgIconDirection { right, down, left, up }
 
-/// Icon renderer widget for Defguard design system icons.
+/// Icon renderer widget for XGuard design system icons.
 ///
 /// Automatically resolves icon asset names relative to `assets/next/icons/`
 /// and appends `.svg` extension if omitted. Supports auto-rotation based on

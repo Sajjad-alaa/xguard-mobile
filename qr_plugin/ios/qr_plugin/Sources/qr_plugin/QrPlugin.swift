@@ -14,7 +14,7 @@ public class QrPlugin: NSObject, FlutterPlugin {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = QrPlugin(textures: registrar.textures(), messenger: registrar.messenger())
-        let channel = FlutterMethodChannel(name: "net.defguard.qr_plugin", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "local.xguard.qr_plugin", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -50,7 +50,7 @@ private class QrScanner: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampl
     private let session = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
-    private let queue = DispatchQueue(label: "net.defguard.qr_plugin.session")
+    private let queue = DispatchQueue(label: "local.xguard.qr_plugin.session")
     private let bufferLock = NSLock()
     private var latestBuffer: CVPixelBuffer?
     private var bufferSize = CGSize.zero
@@ -65,7 +65,7 @@ private class QrScanner: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampl
     private var geometryObservation: NSKeyValueObservation?
 
     init(id: Int, textures: FlutterTextureRegistry, messenger: FlutterBinaryMessenger) {
-        channel = FlutterMethodChannel(name: "net.defguard.qr_plugin/scanner_\(id)", binaryMessenger: messenger)
+        channel = FlutterMethodChannel(name: "local.xguard.qr_plugin/scanner_\(id)", binaryMessenger: messenger)
         self.textures = textures
         super.init()
         textureId = textures.register(self)

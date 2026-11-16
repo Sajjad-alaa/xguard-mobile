@@ -60,10 +60,10 @@ class _MfaUnavailableDialog extends StatelessWidget {
           "enable biometrics during setup.",
     MfaUnpassableReason.registerSecurityKey =>
       "This location requires a hardware security key. Register a certified "
-          "key from the Defguard desktop client, then try again.",
+          "key from the XGuard desktop client, then try again.",
     MfaUnpassableReason.notConfigured =>
       "This location requires a verification method you have not configured "
-          "yet. Set it up in Defguard, then try again.",
+          "yet. Set it up in XGuard, then try again.",
     MfaUnpassableReason.desktopOnly || null =>
       "This location requires a verification method the mobile app cannot "
           "perform. Use the desktop client to connect.",

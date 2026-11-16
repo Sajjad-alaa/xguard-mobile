@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:mobile/data/client_identity.dart';
 import 'package:mobile/logging.dart';
 
-const clientVersionHeader = 'defguard-client-version';
-const clientPlatformHeader = 'defguard-client-platform';
+const clientVersionHeader = 'xguard-client-version';
+const clientPlatformHeader = 'xguard-client-platform';
 
 // Headers are required by all proxy communication to ensure proper core responses.
 class ClientHeadersInterceptor extends Interceptor {

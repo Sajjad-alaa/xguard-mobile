@@ -1,4 +1,4 @@
-group = "net.defguard.qr_plugin"
+group = "local.xguard.qr_plugin"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -24,7 +24,7 @@ plugins {
 }
 
 android {
-    namespace = "net.defguard.qr_plugin"
+    namespace = "local.xguard.qr_plugin"
 
     compileSdk = 36
 

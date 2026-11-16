@@ -31,7 +31,7 @@ final class Log {
     init(category: String) {
         self.category = category
         self.systemLogger = Logger(
-            subsystem: Bundle.main.bundleIdentifier ?? "net.defguard.VPNExtension",
+            subsystem: Bundle.main.bundleIdentifier ?? "local.xguard.VPNExtension",
             category: category
         )
     }
@@ -77,7 +77,7 @@ final class Log {
 /// Use the `Log` class instead of this directly for unified logging.
 final class FileLogger {
     static let shared = FileLogger()
-    static let appGroupIdentifier = "group.net.defguard"
+    static let appGroupIdentifier = "group.local.xguard"
     private let logFileName = "vpn-extension.log"
     private let maxLogFileSize: UInt64 = 5 * 1024 * 1024  // 5 MB
     private let maxBackupFiles = 3
@@ -94,10 +94,10 @@ final class FileLogger {
         return formatter
     }()
 
-    private let queue = DispatchQueue(label: "net.defguard.VPNExtension.filelogger")
+    private let queue = DispatchQueue(label: "local.xguard.VPNExtension.filelogger")
 
     private let internalLogger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "net.defguard.VPNExtension",
+        subsystem: Bundle.main.bundleIdentifier ?? "local.xguard.VPNExtension",
         category: "FileLogger")
 
     private init() {

@@ -14,7 +14,7 @@ import 'package:mobile/theme/text.dart';
 typedef DgCodeEntrySubmit =
     Future<void> Function(String code, void Function(String?) setError);
 
-/// Length of a Defguard MFA code, both TOTP and e-mail.
+/// Length of a XGuard MFA code, both TOTP and e-mail.
 const int _codeLength = 6;
 
 class DgCodeEntryLayout extends HookWidget {

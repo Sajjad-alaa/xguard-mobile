@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "net.defguard.mobile"
+    namespace = "local.xguard.mobile"
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "net.defguard.mobile"
+        applicationId = "local.xguard.mobile"
         minSdk = 31
         targetSdk = 37
         versionCode = flutter.versionCode

@@ -17,13 +17,13 @@ import 'package:mobile/utils/error_handler.dart';
 import 'package:mobile/utils/update_instance.dart';
 
 class RefreshInstanceScreenData {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const RefreshInstanceScreenData({required this.instance});
 }
 
 class RefreshInstanceScreen extends StatelessWidget {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const RefreshInstanceScreen({super.key, required this.instance});
 
@@ -48,7 +48,7 @@ class RefreshInstanceScreen extends StatelessWidget {
 }
 
 class _RefreshInstanceContent extends HookConsumerWidget {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const _RefreshInstanceContent({required this.instance});
 
@@ -170,7 +170,7 @@ bool _isValidUri(String value) {
 Future<bool> _refreshInstance(
   AppDatabase db,
   ToastManager toaster,
-  DefguardInstance instance,
+  XGuardInstance instance,
   Uri uri,
   String token,
 ) async {

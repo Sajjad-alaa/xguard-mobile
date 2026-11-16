@@ -53,8 +53,8 @@ DevicePostureData _$DevicePostureDataFromJson(
   json,
   ($checkedConvert) {
     final val = DevicePostureData(
-      defguardClientVersion: $checkedConvert(
-        'defguard_client_version',
+      xguardClientVersion: $checkedConvert(
+        'xguard_client_version',
         (v) => v as String,
       ),
       osType: $checkedConvert('os_type', (v) => v as String),
@@ -103,7 +103,7 @@ DevicePostureData _$DevicePostureDataFromJson(
     return val;
   },
   fieldKeyMap: const {
-    'defguardClientVersion': 'defguard_client_version',
+    'xguardClientVersion': 'xguard_client_version',
     'osType': 'os_type',
     'osName': 'os_name',
     'osVersion': 'os_version',
@@ -118,7 +118,7 @@ DevicePostureData _$DevicePostureDataFromJson(
 );
 
 const _$DevicePostureDataFieldMap = <String, String>{
-  'defguardClientVersion': 'defguard_client_version',
+  'xguardClientVersion': 'xguard_client_version',
   'osType': 'os_type',
   'osName': 'os_name',
   'osVersion': 'os_version',
@@ -133,7 +133,7 @@ const _$DevicePostureDataFieldMap = <String, String>{
 
 Map<String, dynamic> _$DevicePostureDataToJson(DevicePostureData instance) =>
     <String, dynamic>{
-      'defguard_client_version': instance.defguardClientVersion,
+      'xguard_client_version': instance.xguardClientVersion,
       'os_type': instance.osType,
       'os_name': instance.osName,
       'os_version': instance.osVersion,

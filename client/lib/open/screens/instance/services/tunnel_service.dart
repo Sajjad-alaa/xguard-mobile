@@ -72,7 +72,7 @@ class TunnelService {
   /// front of the user except the MFA step screens.
   static Future<ConnectResult> connect({
     required BuildContext context,
-    required DefguardInstance instance,
+    required XGuardInstance instance,
     required Location location,
     required dynamic wireguardPlugin,
     required BiometricsState biometricsStatus,
@@ -224,7 +224,7 @@ class TunnelService {
   /// their stored value - passing `Value(null)` would clear them instead.
   static Future<void> _rememberPreferences(
     AppDatabase db,
-    DefguardInstance instance,
+    XGuardInstance instance,
     Location location, {
     required RoutingMethod trafficMethod,
     MfaMethod? mfaMethod,
@@ -278,11 +278,11 @@ class TunnelService {
       attempt.postureCheckRequired == refreshed.postureCheckRequired;
 
   static Future<
-    ({List<MfaMethod> plan, DefguardInstance instance, Location location})?
+    ({List<MfaMethod> plan, XGuardInstance instance, Location location})?
   >
   _refreshMfaPlan({
     required AppDatabase db,
-    required DefguardInstance instance,
+    required XGuardInstance instance,
     required Location location,
     required List<MfaMethod?> oneOff,
     required MfaCapabilities capabilities,
@@ -305,7 +305,7 @@ class TunnelService {
     );
     if (update == null) return null;
 
-    final refreshedInstance = await db.managers.defguardInstances
+    final refreshedInstance = await db.managers.xguardInstances
         .filter((row) => row.id.equals(instance.id))
         .getSingleOrNull();
     if (refreshedInstance == null) return null;
@@ -394,7 +394,7 @@ class TunnelService {
   }
 
   static PluginConnectPayload _makePayload(
-    DefguardInstance instance,
+    XGuardInstance instance,
     Location location,
     RoutingMethod trafficMethod,
     String privateKey,

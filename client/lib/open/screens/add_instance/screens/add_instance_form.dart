@@ -189,12 +189,12 @@ Future<void> _handleSubmit(
   if (!enrolmentResponse.user.enrolled) {
     toaster.showError(
       message:
-          "Enrol via the Defguard Desktop App first to add mobile devices.",
+          "Enrol via the XGuard Desktop App first to add mobile devices.",
     );
     return;
   }
   final instanceId = enrolmentResponse.instance.id;
-  final dbInstance = await db.managers.defguardInstances
+  final dbInstance = await db.managers.xguardInstances
       .filter((row) => row.uuid.equals(instanceId))
       .getSingleOrNull();
   if (dbInstance != null) {

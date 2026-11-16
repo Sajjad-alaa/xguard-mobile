@@ -1,8 +1,8 @@
-# Defguard Mobile - WireGuard VPN mobile client
+# XGuard Mobile - WireGuard VPN mobile client
 
-The **DefGuard Mobile Client** is a secure, self-hosted **WireGuard VPN mobile client** designed for enterprise and personal use. It enables seamless management of WireGuard® VPN tunnels on the go with enhanced security through **multi-factor authentication (MFA)**, including biometrics, TOTP, and external SSO providers like Google, Okta, and Microsoft EntraID.
+The **XGuard Mobile Client** is a secure, self-hosted **WireGuard VPN mobile client** designed for enterprise and personal use. It enables seamless management of WireGuard® VPN tunnels on the go with enhanced security through **multi-factor authentication (MFA)**, including biometrics, TOTP, and external SSO providers like Google, Okta, and Microsoft EntraID.
 
-This open-source, cross-platform VPN app supports easy QR code onboarding and flexible traffic routing to meet diverse secure remote access needs. DefGuard is part of a modular ecosystem built for VPN orchestration and identity management . Defguard provides a mobile VPN client with biometrics and TOTP.
+This open-source, cross-platform VPN app supports easy QR code onboarding and flexible traffic routing to meet diverse secure remote access needs. XGuard is part of a modular ecosystem built for VPN orchestration and identity management . XGuard provides a mobile VPN client with biometrics and TOTP.
 
 ## Key Features
 
@@ -11,7 +11,7 @@ This open-source, cross-platform VPN app supports easy QR code onboarding and fl
 - External SSO support: Google, Okta, Microsoft EntraID, JumpCloud, and more
 - Quick and easy onboarding via secure **QR code VPN onboarding** or URL/token
 - Flexible traffic routing: all traffic via VPN or selective routing
-- Real-time synchronization of VPN configurations with the DefGuard server
+- Real-time synchronization of VPN configurations with the XGuard server
 - Native **cross-platform VPN app** support for **Android VPN client** and iOS VPN client
 - Fully **self-hosted VPN solution** for ultimate privacy and control
 - Open-source codebase for transparency and customization
@@ -23,11 +23,11 @@ This open-source, cross-platform VPN app supports easy QR code onboarding and fl
 <img width="250" alt="Traffic routing options" src="https://github.com/user-attachments/assets/c3ead16b-95e8-40cf-8f47-26e9bf861bcb" />
 <img width="250" alt="MFA external" src="https://github.com/user-attachments/assets/c959c1c2-e26c-4605-92a9-54d2788273a9" />
 <img width="250" alt="Instance list" src="https://github.com/user-attachments/assets/8fb7c5ba-4d11-4452-997a-b2bd17b468d0" />
-<img width="250" alt="MFA defguard IdP" src="https://github.com/user-attachments/assets/d08d008e-22f2-4f14-9b1b-db6eccb3c3dc" />
+<img width="250" alt="MFA xguard IdP" src="https://github.com/user-attachments/assets/d08d008e-22f2-4f14-9b1b-db6eccb3c3dc" />
 
 ## Getting Started
 
-You need to have a running [Defguard Core](https://github.com/DefGuard/defguard) to use the mobile app.
+You need to have a running [XGuard Core](https://github.com/Sajjad-alaa/xguard-core) to use the mobile app.
 
 ### Install the App
 
@@ -35,16 +35,16 @@ Join closed beta for iOS or Android.
 
 #### Android
 
-- Download from [Google Play](https://play.google.com/store/apps/details?id=net.defguard.mobile)
+- Download from [Google Play](https://play.google.com/store/apps/details?id=local.xguard.mobile)
 
 #### iOS
 
-- Available soon on the [App Store](https://apps.apple.com/us/app/defguard-vpn-client/id6748068630)
+- Available soon on the [App Store](https://apps.apple.com/us/app/xguard-vpn-client/id6748068630)
 
-Documentation available at : [https://docs.defguard.net/using-defguard-for-end-users/mobile-client](https://docs.defguard.net/using-defguard-for-end-users/mobile-client)
+Documentation available at : [https://docs.xguard.local/using-xguard-for-end-users/mobile-client](https://docs.xguard.local/using-xguard-for-end-users/mobile-client)
 
-## About DefGuard
+## About XGuard
 
-DefGuard is a comprehensive platform offering **secure remote access**, **identity management**, and VPN orchestration with a focus on security using **multi-factor authentication for VPN**.
+XGuard is a comprehensive platform offering **secure remote access**, **identity management**, and VPN orchestration with a focus on security using **multi-factor authentication for VPN**.
 
-Visit defguard.net for more information.
+Visit xguard.local for more information.

@@ -1,4 +1,4 @@
-group = "net.defguard.wireguard_plugin"
+group = "local.xguard.wireguard_plugin"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -27,7 +27,7 @@ plugins {
 }
 
 android {
-    namespace = "net.defguard.wireguard_plugin"
+    namespace = "local.xguard.wireguard_plugin"
 
     compileSdk = 36
 

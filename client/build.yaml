@@ -12,4 +12,4 @@ targets:
       drift_dev:
         options:
           databases:
-            defguard: lib/data/db/database.dart
+            xguard: lib/data/db/database.dart

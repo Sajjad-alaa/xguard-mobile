@@ -9,7 +9,7 @@ import 'package:mobile/theme/color.dart';
 import 'package:mobile/theme/spacing.dart';
 
 class DeleteInstanceDialog extends HookConsumerWidget {
-  final DefguardInstance instance;
+  final XGuardInstance instance;
 
   const DeleteInstanceDialog({super.key, required this.instance});
 
@@ -24,7 +24,7 @@ class DeleteInstanceDialog extends HookConsumerWidget {
     Future<void> deleteInstance(BuildContext context) async {
       try {
         await instance.removeSecrets();
-        await db.managers.defguardInstances
+        await db.managers.xguardInstances
             .filter((row) => row.id.equals(instance.id))
             .delete();
         if (context.mounted) {

@@ -1,4 +1,4 @@
-group = "net.defguard.fido2_plugin"
+group = "local.xguard.fido2_plugin"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -24,7 +24,7 @@ plugins {
 }
 
 android {
-    namespace = "net.defguard.fido2_plugin"
+    namespace = "local.xguard.fido2_plugin"
 
     // yubikit 3.2.1's AAR metadata demands 37, same as the app
     compileSdk = 37

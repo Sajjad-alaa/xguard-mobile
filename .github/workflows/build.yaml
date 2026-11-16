@@ -58,7 +58,7 @@ jobs:
         run: |
           xcrun altool --api-key ${{ secrets.ASC_API_KEY_ID }} \
             --api-issuer ${{ secrets.API_ISSUER_ID }} \
-            --upload-app --platform ios --file build/ios/ipa/Defguard.ipa --wait
+            --upload-app --platform ios --file build/ios/ipa/XGuard.ipa --wait
 
       - name: Upload What's New
         env:
@@ -135,19 +135,19 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           serviceAccountJsonPlainText: "${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}"
-          packageName: net.defguard.mobile
+          packageName: local.xguard.mobile
           releaseFiles: ${{ steps.sign_aab.outputs.signedReleaseFile }}
           track: internal
 
       - name: Rename AAB
-        run: cp "$GITHUB_WORKSPACE/${{ steps.sign_aab.outputs.signedReleaseFile }}" Defguard.aab
+        run: cp "$GITHUB_WORKSPACE/${{ steps.sign_aab.outputs.signedReleaseFile }}" XGuard.aab
 
       - name: Upload Android Artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: startsWith(github.ref, 'refs/tags/')
         with:
           name: android-app
-          path: "client/Defguard.aab"
+          path: "client/XGuard.aab"
           retention-days: 2
 
   build-android-apk:
@@ -201,14 +201,14 @@ jobs:
           keyPassword: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
 
       - name: Rename APK
-        run: cp "$GITHUB_WORKSPACE/${{ steps.sign_apk.outputs.signedReleaseFile }}" Defguard.apk
+        run: cp "$GITHUB_WORKSPACE/${{ steps.sign_apk.outputs.signedReleaseFile }}" XGuard.apk
 
       - name: Upload Android Artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
         with:
           name: android-app-apk
-          path: "client/Defguard.apk"
+          path: "client/XGuard.apk"
           retention-days: 2
 
   release:

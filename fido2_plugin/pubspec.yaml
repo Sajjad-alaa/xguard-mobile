@@ -21,7 +21,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: net.defguard.fido2_plugin
+        package: local.xguard.fido2_plugin
         pluginClass: Fido2Plugin
       ios:
         pluginClass: Fido2Plugin

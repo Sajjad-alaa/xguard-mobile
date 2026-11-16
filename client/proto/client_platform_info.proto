@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package defguard.proxy;
+package xguard.proxy;
 
 message ClientPlatformInfo {
   string os_family = 1;
