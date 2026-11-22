@@ -44,6 +44,9 @@ const val METHOD_CHANNEL_NAME = "local.xguard.wireguard_plugin/channel"
 const val METHOD_EVENT_NAME = "local.xguard.wireguard_plugin/event"
 const val DEFAULT_ROUTE_IPV4 = "0.0.0.0/0"
 const val DEFAULT_ROUTE_IPV6 = "::/0"
+// MTU bounds accepted from the server (the same range the XGuard daemon accepts).
+const val MTU_MIN = 576
+const val MTU_MAX = 9200
 const val VPN_PERMISSION_REQUEST_CODE = 1001
 const val LOG_TAG = "DG"
 const val HEALTH_CHECK_INTERVAL = 30000L // 30 seconds
@@ -276,6 +279,10 @@ class WireguardPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
                 if (!configData.dns.isNullOrBlank()) {
                     interfaceBuilder.parseDnsServers(configData.dns)
+                }
+
+                configData.mtu?.takeIf { it in MTU_MIN..MTU_MAX }?.let {
+                    interfaceBuilder.setMtu(it)
                 }
 
                 val iface = interfaceBuilder.build()

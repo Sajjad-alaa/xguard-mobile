@@ -24,6 +24,8 @@ data class TunnelStartData(
     val keepalive: Int,
     val presharedKey: String?,
     val traffic: TunnelTraffic,
+    // Interface MTU sent by XGuard; null lets the backend pick its default.
+    val mtu: Int? = null,
     // context
     val locationName: String,
     val locationId: Int,

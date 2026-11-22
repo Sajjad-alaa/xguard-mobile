@@ -47,7 +47,7 @@ void main() {
     );
   });
 
-  test('MFA requests, responses, and errors are excluded from Dio logs', () {
+  test('requests carrying secrets are excluded from Dio logs', () {
     final logger = dio.interceptors.whereType<TalkerDioLogger>().single;
     final settings = logger.settings;
 
@@ -59,6 +59,9 @@ void main() {
       'https://proxy.example/api/v1/mfa-flow/step-start',
       'https://proxy.example/api/v1/mfa-flow/step-finish',
       'https://proxy.example/api/v1/mfa-flow/approve',
+      // The polling token and the posture-connect preshared key.
+      'https://proxy.example/api/v1/poll',
+      'https://proxy.example/edge/api/v1/posture/connect',
     ]) {
       final request = RequestOptions(path: path);
       expect(settings.requestFilter!(request), isFalse);
@@ -73,7 +76,7 @@ void main() {
     }
 
     final otherRequest = RequestOptions(
-      path: 'https://proxy.example/api/v1/poll',
+      path: 'https://proxy.example/api/v1/enrollment/start',
     );
     expect(settings.requestFilter!(otherRequest), isTrue);
   });

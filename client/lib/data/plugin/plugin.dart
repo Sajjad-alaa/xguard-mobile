@@ -23,6 +23,10 @@ class PluginConnectPayload {
   RoutingMethod traffic;
   final bool postureCheckRequired;
 
+  /// Interface MTU sent by the server; null lets the platform pick.
+  @JsonKey(includeIfNull: false)
+  final int? mtu;
+
   PluginConnectPayload({
     required this.publicKey,
     required this.devicePublicKey,
@@ -39,6 +43,7 @@ class PluginConnectPayload {
     this.dns,
     this.presharedKey,
     required this.postureCheckRequired,
+    this.mtu,
   });
 
   factory PluginConnectPayload.fromJson(Map<String, dynamic> json) =>

@@ -1,6 +1,6 @@
 // dart format width=80
 // ignore_for_file: unused_local_variable, unused_import
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:mobile/data/db/database.dart';
@@ -76,6 +76,52 @@ void main() {
         expect(instance.mfaContract, 'legacy');
       },
     );
+  });
+
+  test('migration from v8 to v9 adds nullable mtu and preserves data', () async {
+    final schema = await verifier.schemaAt(8);
+    final oldDb = v8.DatabaseAtV8(schema.newConnection());
+    await oldDb.batch((batch) {
+      batch.insertAll(oldDb.xguardInstances, <v8.XGuardInstancesData>[
+        const v8.XGuardInstancesData(
+          id: 1,
+          name: 'instance',
+          uuid: 'instance-uuid',
+          url: 'https://xguard.example',
+          deviceId: 7,
+          proxyUrl: 'https://proxy.xguard.example',
+          username: 'user',
+          clientTrafficPolicy: 0,
+          enterpriseEnabled: 1,
+          pubKey: 'public-key',
+          mfaKeysStored: 0,
+          mfaContract: 'multiStep',
+        ),
+      ]);
+      batch.insertAll(oldDb.locations, <v8.LocationsData>[
+        const v8.LocationsData(
+          id: 1,
+          instance: 1,
+          networkId: 11,
+          name: 'HQ',
+          address: '10.0.0.1/24',
+          pubKey: 'pubkey-1',
+          endpoint: 'vpn.example:51820',
+          allowedIps: '0.0.0.0/0',
+          keepAliveInterval: 25,
+          mfaSteps: '[]',
+          mfaStepPlan: '[]',
+        ),
+      ]);
+    });
+    await oldDb.close();
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    final location = await db.select(db.locations).getSingle();
+    expect(location.name, 'HQ');
+    expect(location.networkId, 11);
+    expect(location.mtu, isNull);
   });
 
   // The following template shows how to write tests ensuring your migrations

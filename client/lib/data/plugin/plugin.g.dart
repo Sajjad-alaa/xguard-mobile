@@ -34,6 +34,7 @@ PluginConnectPayload _$PluginConnectPayloadFromJson(
         'posture_check_required',
         (v) => v as bool,
       ),
+      mtu: $checkedConvert('mtu', (v) => (v as num?)?.toInt()),
     );
     return val;
   },
@@ -67,6 +68,7 @@ const _$PluginConnectPayloadFieldMap = <String, String>{
   'networkId': 'network_id',
   'traffic': 'traffic',
   'postureCheckRequired': 'posture_check_required',
+  'mtu': 'mtu',
 };
 
 Map<String, dynamic> _$PluginConnectPayloadToJson(
@@ -87,6 +89,7 @@ Map<String, dynamic> _$PluginConnectPayloadToJson(
   'network_id': instance.networkId,
   'traffic': _$RoutingMethodEnumMap[instance.traffic]!,
   'posture_check_required': instance.postureCheckRequired,
+  'mtu': ?instance.mtu,
 };
 
 const _$RoutingMethodEnumMap = {

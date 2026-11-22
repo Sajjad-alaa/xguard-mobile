@@ -10,6 +10,7 @@ import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/plugin/plugin.dart';
 import 'package:mobile/logging.dart';
+import 'package:mobile/open/config_sync_controller.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
 import 'package:mobile/open/riverpod/plugin/plugin.dart';
 import 'package:mobile/open/screens/add_instance/data_gathering_dialog.dart';
@@ -195,6 +196,21 @@ class InstanceScreen extends HookConsumerWidget {
                     activeTunnel: activeTunnel,
                     wireguardPlugin: wireguardPlugin,
                     biometricStatus: biometricStatus,
+                  );
+
+                  // Pull to sync this instance's configuration now.
+                  content = RefreshIndicator(
+                    color: DgColor.bgWhite100,
+                    backgroundColor: DgColor.bgDarkBlue80,
+                    onRefresh: () async {
+                      final reports = await ref
+                          .read(configSyncServiceProvider)
+                          .syncNow(instanceId: data.instance.id);
+                      ref
+                          .read(toastManagerProvider.notifier)
+                          .show(message: manualSyncMessage(reports));
+                    },
+                    child: content,
                   );
 
                   return content;

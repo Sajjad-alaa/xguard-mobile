@@ -64,7 +64,7 @@ final class _ScreenDataProvider
   }
 }
 
-String _$_screenDataHash() => r'9c86575e1095600075039e7ccebd8ddee491141b';
+String _$_screenDataHash() => r'12522eb7e529d495f9cebaa94d94ab135e23ebce';
 
 final class _ScreenDataFamily extends $Family
     with $FunctionalFamilyOverride<Stream<_ScreenData?>, String> {

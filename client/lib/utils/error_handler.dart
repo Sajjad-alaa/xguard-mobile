@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/open/api.dart';
 
 class ErrorHandler {
   static String getHumanReadableError(Object e) {
+    if (e is PostureRejectedException) return e.userMessage;
+
     if (e is DioException) {
       switch (e.type) {
         case DioExceptionType.connectionTimeout:

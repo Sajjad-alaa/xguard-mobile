@@ -7,12 +7,17 @@ import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
 import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/plugin/plugin.dart';
+import 'package:mobile/data/posture/collect.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_flow.dart';
 import 'package:mobile/utils/instance_secrets.dart';
+import 'package:mobile/utils/error_handler.dart';
 import 'package:mobile/utils/update_instance.dart';
+import 'package:mobile/data/config_sync/config_sync.dart';
+import 'package:mobile/data/proxy/config.dart';
 
 import '../../../../data/db/enums.dart';
 import '../../../../utils/notifications.dart';
@@ -107,6 +112,11 @@ class TunnelService {
         "${plan.map((m) => m.toReadableString()).join(', ')}",
       );
 
+      // Core checks posture at MFA start, before any factor is asked for.
+      final posture = payload.postureCheckRequired
+          ? await collectPostureFacts()
+          : null;
+
       await requestNotificationPermissions();
       final flow = MfaStepFlow(
         navigator: navigator,
@@ -118,6 +128,7 @@ class TunnelService {
           plan: plan,
           devicePubkey: payload.devicePublicKey,
           networkId: payload.networkId,
+          posture: posture,
           refreshPlan: instance.mfaContract == MfaContract.multiStep
               ? () async {
                   final retry = await _refreshMfaPlan(
@@ -170,12 +181,8 @@ class TunnelService {
       final completedPlan = flow.controller.plan;
       authorizedWith = completedPlan.length == 1 ? completedPlan.single : null;
     } else if (payload.postureCheckRequired) {
-      // Device posture checks were part of the Defguard enterprise edition and are not
-      // supported by XGuard; current servers never require them.
-      return const ConnectResult.failed(
-        message:
-            'This location requires device posture checks, which XGuard does not support.',
-      );
+      final failure = await _authorizePosture(instance, payload);
+      if (failure != null) return failure;
     }
 
     await wireguardPlugin.startTunnel(jsonEncode(payload.toJson()));
@@ -244,6 +251,83 @@ class TunnelService {
     }
   }
 
+  /// Posture-only connect (location with posture policies and no MFA): sends
+  /// the device's facts with its polling token through Edge; Core answers with
+  /// the session's preshared key, or refuses with the failed checks.
+  static Future<ConnectResult?> _authorizePosture(
+    XGuardInstance instance,
+    PluginConnectPayload payload, {
+    ProxyApi? api,
+  }) async {
+    final token = await instance.pollingToken();
+    if (token == null) {
+      reportMissingSecret(instance.logName, "Proxy token");
+      return const ConnectResult.failed(message: missingSecretsMessage);
+    }
+    try {
+      final facts = await collectPostureFacts();
+      talker.debug(
+        'Posture check for networkId ${payload.networkId}: '
+        'os ${facts.os.name} ${facts.osVersion ?? '?'}, '
+        'lock ${facts.screenLockEnabled}, encrypted ${facts.diskEncrypted}',
+      );
+      final key = await (api ?? proxyApi).postureConnect(
+        Uri.parse(instance.proxyUrl),
+        locationId: payload.networkId,
+        pubkey: payload.devicePublicKey,
+        token: token,
+        posture: facts,
+      );
+      payload.presharedKey = key.isEmpty ? null : key;
+      return null;
+    } on PostureRejectedException catch (e) {
+      return ConnectResult.failed(
+        message: e.userMessage,
+        logMessage: 'Posture check refused',
+        error: e,
+      );
+    } catch (e) {
+      return ConnectResult.failed(
+        message: ErrorHandler.getHumanReadableError(e),
+        logMessage: 'Posture check request failed',
+        error: e,
+      );
+    }
+  }
+
+  /// Reconnects a live tunnel after a configuration change, without the user:
+  /// only for locations without MFA (posture-only locations run their check
+  /// again). The caller decides when that applies (`planTunnelAction`).
+  static Future<ConnectResult> reconnectUnattended({
+    required XGuardInstance instance,
+    required Location location,
+    required dynamic wireguardPlugin,
+    required RoutingMethod trafficMethod,
+  }) async {
+    if (shouldStartMfa(location)) {
+      return const ConnectResult.failed(
+        message: 'This location needs verification to connect.',
+      );
+    }
+    final privateKey = await instance.wireguardPrivateKey();
+    if (privateKey == null) {
+      reportMissingSecret(instance.logName, "WireGuard private key");
+      return const ConnectResult.failed(message: missingSecretsMessage);
+    }
+    final payload = _makePayload(
+      instance,
+      location,
+      trafficMethod,
+      privateKey,
+    );
+    if (payload.postureCheckRequired) {
+      final failure = await _authorizePosture(instance, payload);
+      if (failure != null) return failure;
+    }
+    await wireguardPlugin.startTunnel(jsonEncode(payload.toJson()));
+    return const ConnectResult.connected();
+  }
+
   /// The started attempt is bound to the device key, network and posture data,
   /// so a retry may reuse it only when the refresh left those unchanged.
   @visibleForTesting
@@ -268,11 +352,18 @@ class TunnelService {
     final token = await instance.pollingToken();
     if (token == null) return null;
 
-    final (config, _, _) = await proxyApi.pollConfiguration(
-      instance.proxyUrl,
-      token,
-    );
-    if (config == null) return null;
+    // Without a revision: the plan needs the full configuration even when the
+    // sync loop already applied this one.
+    final ConfigurationPollResponse config;
+    try {
+      final poll = await proxyApi.fetchConfig(instance.proxyUrl, token);
+      final outcome = poll.outcome;
+      if (outcome is! PollChanged) return null;
+      config = outcome.config;
+    } catch (e) {
+      talker.warning('Refreshing the MFA plan failed: $e');
+      return null;
+    }
 
     final update = await updateInstance(
       db: db,
@@ -338,6 +429,7 @@ class TunnelService {
       instanceId: instance.id,
       traffic: selectedTrafficMethod,
       postureCheckRequired: location.postureCheckRequired == true,
+      mtu: location.mtu,
     );
   }
 }

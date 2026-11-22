@@ -1,5 +1,6 @@
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
+import 'package:mobile/data/posture/posture.dart';
 
 /// What the server said about the proof just submitted.
 sealed class MfaStepProgress {
@@ -28,6 +29,10 @@ class MfaFlowController {
   final MfaTransport transport;
   final MfaPlanRefresh? refreshPlan;
 
+  /// Device posture facts, sent with the start request when the location has
+  /// posture policies. Core checks them before asking for any factor.
+  final DevicePostureFacts? posture;
+
   int _stepIndex = 0;
   String? _token;
   String? _challenge;
@@ -44,6 +49,7 @@ class MfaFlowController {
     required this.devicePubkey,
     required this.networkId,
     this.refreshPlan,
+    this.posture,
   }) : _plan = List.unmodifiable(plan),
        assert(plan.isNotEmpty, 'a flow needs at least one step');
 
@@ -108,7 +114,20 @@ class MfaFlowController {
     devicePubkey: devicePubkey,
     networkId: networkId,
     plan: _plan,
+    posture: posture,
   );
+
+  /// Asks for a fresh attempt of the current step (multi-step contract only).
+  /// Core uses a FIDO2 challenge up with the first answer, right or wrong, so a
+  /// retry needs a new one; the old attempt stops being accepted.
+  Future<void> reissueStep() async {
+    final token = _token;
+    if (token == null) {
+      throw StateError('No MFA session to re-issue a step of');
+    }
+    _stepOpen = false;
+    _setStep(await transport.startStep(token, method));
+  }
 
   void _setStep(MfaStepChallenge step) {
     _stepAttemptId = step.stepAttemptId;

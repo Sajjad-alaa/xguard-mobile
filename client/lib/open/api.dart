@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
@@ -5,11 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobile/data/client_identity.dart';
+import 'package:mobile/data/config_sync/config_sync.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/proxy/config.dart';
 import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/data/proxy/mfa.dart';
 import 'package:mobile/data/proxy/mfa_flow.dart' as wire;
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/open/client_headers_interceptor.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
@@ -20,12 +23,32 @@ const _apiV1Segments = ['api', 'v1'];
 final enrollmentPathSegments = ['api', 'v1', 'enrollment'];
 final mfaPathSegments = ['api', 'v1', 'client-mfa'];
 final mfaFlowPathSegments = [..._apiV1Segments, 'mfa-flow'];
+final posturePathSegments = [..._apiV1Segments, 'posture'];
 
 const _iosConnectionLostCode = '-1005';
 
 bool _isMfaEndpoint(Uri uri) =>
     uri.pathSegments.contains(mfaPathSegments.last) ||
     uri.pathSegments.contains(mfaFlowPathSegments.last);
+
+/// Requests that carry secrets (MFA proofs, polling tokens, preshared keys)
+/// are never logged, not even in debug builds.
+bool _isSecretEndpoint(Uri uri) {
+  final segments = uri.pathSegments;
+  final last = segments.isEmpty ? '' : segments.last;
+  return _isMfaEndpoint(uri) ||
+      last == 'poll' ||
+      (last == 'connect' && segments.contains(posturePathSegments.last));
+}
+
+/// Throws [PostureRejectedException] when [error] is Core refusing the device
+/// for its posture (403 with `code: posture_rejected`).
+void _throwIfPostureRejected(DioException error) {
+  final response = error.response;
+  if (isPostureRejection(response?.statusCode, response?.data)) {
+    throw PostureRejectedException(postureRejectionReasons(response?.data));
+  }
+}
 
 class MfaMethodNotAvailableException implements Exception {
   final MfaMethod method;
@@ -195,10 +218,10 @@ Dio buildProxyDio({
         printRequestHeaders: !kReleaseMode,
         printResponseData: !kReleaseMode,
         printErrorData: !kReleaseMode,
-        requestFilter: (request) => !_isMfaEndpoint(request.uri),
+        requestFilter: (request) => !_isSecretEndpoint(request.uri),
         responseFilter: (response) =>
-            !_isMfaEndpoint(response.requestOptions.uri),
-        errorFilter: (error) => !_isMfaEndpoint(error.requestOptions.uri),
+            !_isSecretEndpoint(response.requestOptions.uri),
+        errorFilter: (error) => !_isSecretEndpoint(error.requestOptions.uri),
       ),
     ),
   ]);
@@ -217,39 +240,97 @@ class ProxyApi {
   @visibleForTesting
   ProxyApi.forTesting(this._dio);
 
-  Future<(ConfigurationPollResponse?, int?, Headers?)> pollConfiguration(
+  /// Polls Edge for the configuration of the device holding [token]. Sends
+  /// [revision] (the one applied last) so an unchanged configuration costs one
+  /// small response. Redirects are never followed, so the token cannot be sent
+  /// to another host; the response size and time are bounded.
+  Future<ConfigPoll> fetchConfig(
     String proxyUrl,
-    String authToken,
-  ) async {
-    talker.debug("Polling configuration from $proxyUrl");
+    String token, {
+    String? revision,
+  }) async {
+    final endpoint = pollUri(proxyUrl);
+    final cancel = CancelToken();
+    final Response<dynamic> response;
     try {
-      final proxyUri = Uri.parse(proxyUrl);
-      final endpoint = proxyUri.replace(
-        pathSegments: [...proxyUri.pathSegments, ..._apiV1Segments, 'poll'],
-      );
-      final Map<String, dynamic> data = {'token': authToken};
-      final response = await _dio.postUri(
+      response = await _dio.postUri(
         endpoint,
-        data: data,
+        data: pollRequestBody(token, revision),
+        cancelToken: cancel,
         options: Options(
-          validateStatus: (status) =>
-              status! < 500, // Don't throw for 4xx errors
+          followRedirects: false,
+          maxRedirects: 0,
+          sendTimeout: pollTimeout,
+          receiveTimeout: pollTimeout,
+          validateStatus: (_) => true,
         ),
-      );
-      final status = response.statusCode;
-      if (status == 402) {
-        return (null, 402, response.headers);
-      }
-      final responseData = InstanceInfoResponse.fromJson(response.data);
-      return (responseData.deviceConfig, status, response.headers);
+        onReceiveProgress: (received, total) {
+          if (received > maxPollResponseBytes ||
+              total > maxPollResponseBytes) {
+            cancel.cancel('response too large');
+          }
+        },
+      ).timeout(pollTimeout + const Duration(seconds: 5));
     } on DioException catch (e) {
-      talker.error(
-        'Failed to poll configuration. Status: ${e.response?.statusCode}',
-      );
-    } catch (_) {
-      talker.error('Failed to parse configuration response');
+      if (CancelToken.isCancel(e)) {
+        throw const ConfigPollException(
+          PollFailure.server,
+          'response too large',
+        );
+      }
+      throw ConfigPollException(PollFailure.network, e.type.name);
+    } on TimeoutException {
+      throw const ConfigPollException(PollFailure.network, 'timeout');
     }
-    return (null, null, null);
+    final status = response.statusCode;
+    if (status != 200) {
+      throw ConfigPollException(failureForStatus(status), 'HTTP $status');
+    }
+    return parsePollResponse(response.data);
+  }
+
+  /// Posture-only connect for a location without MFA: sends the facts with the
+  /// device's polling token and returns the session's preshared key.
+  Future<String> postureConnect(
+    Uri url, {
+    required int locationId,
+    required String pubkey,
+    required String token,
+    required DevicePostureFacts posture,
+  }) async {
+    final endpoint = url.replace(
+      pathSegments: [
+        ...url.pathSegments.where((segment) => segment.isNotEmpty),
+        ...posturePathSegments,
+        'connect',
+      ],
+    );
+    final Response<dynamic> response;
+    try {
+      response = await _dio.postUri(
+        endpoint,
+        data: {
+          'location_id': locationId,
+          'pubkey': pubkey,
+          'token': token,
+          'posture': posture.toJson(),
+        },
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
+    } on DioException catch (e) {
+      _throwIfPostureRejected(e);
+      throw _mfaRequestException(
+        'Posture check',
+        e,
+        statusFailures: const {403: MfaRequestFailure.policyDenied},
+      );
+    }
+    final data = response.data;
+    final key = data is Map ? data['preshared_key'] : null;
+    if (key is! String) {
+      throw const FormatException('Invalid posture connect response');
+    }
+    return key;
   }
 
   Future<EnrollmentStartResponse> startEnrollment(
@@ -330,6 +411,7 @@ class ProxyApi {
               'selected mfa method not available') {
         throw MfaMethodNotAvailableException(data.method);
       }
+      _throwIfPostureRejected(e);
       throw _mfaRequestException(
         'MFA start',
         e,
@@ -352,6 +434,7 @@ class ProxyApi {
       final response = await _dio.postUri(endpoint, data: data.toJson());
       return wire.MfaFlowStartResponse.fromJson(response.data);
     } on DioException catch (e) {
+      _throwIfPostureRejected(e);
       throw _mfaRequestException(
         'MFA flow start',
         e,

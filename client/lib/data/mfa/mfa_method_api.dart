@@ -1,4 +1,5 @@
 import 'package:mobile/data/db/enums.dart';
+import 'package:mobile/data/fido2/ceremony.dart';
 
 /// MFA methods as the proxy sends them, mirroring `MfaMethod` in
 /// `proto/common/client_types.proto`. Values this client cannot perform are
@@ -32,8 +33,11 @@ enum ApiMfaMethod {
     totp => MfaMethod.totp,
     email => MfaMethod.email,
     biometric => MfaMethod.biometric,
-    // OpenID and FIDO2 MFA are not supported by XGuard.
-    oidc || fido2 || mobileApprove || unknown => null,
+    // Signed in through the system browser and Edge.
+    oidc => MfaMethod.openid,
+    // NFC (and USB on Android) security keys; the contract check is separate.
+    fido2 => fido2PlatformSupported ? MfaMethod.fido2 : null,
+    mobileApprove || unknown => null,
   };
 
   /// Row label for a method [supported] cannot map. Supported methods are named

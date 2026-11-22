@@ -275,6 +275,11 @@ DeviceConfig _$DeviceConfigFromJson(Map<String, dynamic> json) =>
                     .toList() ??
                 [],
           ),
+          mtu: $checkedConvert('mtu', (v) => (v as num?)?.toInt()),
+          serviceLocationMode: $checkedConvert(
+            'service_location_mode',
+            (v) => (v as num?)?.toInt(),
+          ),
         );
         return val;
       },
@@ -287,6 +292,7 @@ DeviceConfig _$DeviceConfigFromJson(Map<String, dynamic> json) =>
         'keepaliveInterval': 'keepalive_interval',
         'locationMfaMode': 'location_mfa_mode',
         'postureCheckRequired': 'posture_check_required',
+        'serviceLocationMode': 'service_location_mode',
       },
     );
 
@@ -304,6 +310,8 @@ const _$DeviceConfigFieldMap = <String, String>{
   'locationMfaMode': 'location_mfa_mode',
   'postureCheckRequired': 'posture_check_required',
   'steps': 'steps',
+  'mtu': 'mtu',
+  'serviceLocationMode': 'service_location_mode',
 };
 
 Map<String, dynamic> _$DeviceConfigToJson(DeviceConfig instance) =>
@@ -321,6 +329,8 @@ Map<String, dynamic> _$DeviceConfigToJson(DeviceConfig instance) =>
       'location_mfa_mode': _$LocationMfaModeEnumMap[instance.locationMfaMode],
       'posture_check_required': instance.postureCheckRequired,
       'steps': instance.steps,
+      'mtu': instance.mtu,
+      'service_location_mode': instance.serviceLocationMode,
     };
 
 const _$LocationMfaModeEnumMap = {
@@ -426,6 +436,11 @@ InstanceInfo _$InstanceInfoFromJson(Map<String, dynamic> json) =>
             'mfa_user_state',
             (v) => v as Map<String, dynamic>?,
           ),
+          disableTunnels: $checkedConvert('disable_tunnels', (v) => v as bool?),
+          openidAvailable: $checkedConvert(
+            'openid_available',
+            (v) => v as bool?,
+          ),
         );
         return val;
       },
@@ -437,6 +452,8 @@ InstanceInfo _$InstanceInfoFromJson(Map<String, dynamic> json) =>
         'openidDisplayName': 'openid_display_name',
         'openidProviderKind': 'openid_provider_kind',
         'mfaUserState': 'mfa_user_state',
+        'disableTunnels': 'disable_tunnels',
+        'openidAvailable': 'openid_available',
       },
     );
 
@@ -452,6 +469,8 @@ const _$InstanceInfoFieldMap = <String, String>{
   'openidDisplayName': 'openid_display_name',
   'openidProviderKind': 'openid_provider_kind',
   'mfaUserState': 'mfa_user_state',
+  'disableTunnels': 'disable_tunnels',
+  'openidAvailable': 'openid_available',
 };
 
 Map<String, dynamic> _$InstanceInfoToJson(
@@ -469,6 +488,8 @@ Map<String, dynamic> _$InstanceInfoToJson(
   'openid_display_name': instance.openidDisplayName,
   'openid_provider_kind': _$OpenIdProviderEnumMap[instance.openidProviderKind],
   'mfa_user_state': instance.mfaUserState,
+  'disable_tunnels': instance.disableTunnels,
+  'openid_available': instance.openidAvailable,
 };
 
 const _$ClientTrafficPolicyEnumMap = {

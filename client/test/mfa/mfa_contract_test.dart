@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
@@ -18,6 +19,7 @@ class _RejectingFlowTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
+    DevicePostureFacts? posture,
   }) async {
     startCalls++;
     throw const MfaStartRejectedException('stale flow plan');
@@ -98,7 +100,7 @@ void main() {
     await db
         .into(db.xguardInstances)
         .insert(
-          XGuardInstancesCompanion.insert(
+          XguardInstancesCompanion.insert(
             name: 'instance',
             uuid: 'instance-id',
             url: 'https://xguard.example',
@@ -146,7 +148,7 @@ void main() {
       await db
           .into(db.xguardInstances)
           .insert(
-            XGuardInstancesCompanion.insert(
+            XguardInstancesCompanion.insert(
               name: 'instance',
               uuid: 'instance-id',
               url: 'https://xguard.example',

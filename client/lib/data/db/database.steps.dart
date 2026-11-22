@@ -1167,6 +1167,383 @@ i1.GeneratedColumn<String> _column_53(String aliasedName) =>
       $customConstraints: 'NOT NULL DEFAULT \'legacy\'',
       defaultValue: const i1.CustomExpression('\'legacy\''),
     );
+final class Schema9 extends i0.VersionedSchema {
+  Schema9({required super.database}) : super(version: 9);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    xguardInstances,
+    locations,
+  ];
+  late final V9Shape0 xguardInstances = V9Shape0(
+    source: i0.VersionedTable(
+      entityName: 'xguard_instances',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _v9_column_0,
+        _v9_column_1,
+        _v9_column_2,
+        _v9_column_3,
+        _v9_column_4,
+        _v9_column_5,
+        _v9_column_6,
+        _v9_column_7,
+        _v9_column_8,
+        _v9_column_9,
+        _v9_column_10,
+        _v9_column_11,
+        _v9_column_12,
+        _v9_column_13,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final V9Shape1 locations = V9Shape1(
+    source: i0.VersionedTable(
+      entityName: 'locations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _v9_column_0,
+        _v9_column_14,
+        _v9_column_15,
+        _v9_column_1,
+        _v9_column_16,
+        _v9_column_9,
+        _v9_column_17,
+        _v9_column_18,
+        _v9_column_19,
+        _v9_column_20,
+        _v9_column_21,
+        _v9_column_22,
+        _v9_column_23,
+        _v9_column_24,
+        _v9_column_25,
+        _v9_column_26,
+        _v9_column_27,
+        _v9_column_28,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class V9Shape0 extends i0.VersionedTable {
+  V9Shape0({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get uuid =>
+      columnsByName['uuid']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get url =>
+      columnsByName['url']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get deviceId =>
+      columnsByName['device_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get proxyUrl =>
+      columnsByName['proxy_url']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get username =>
+      columnsByName['username']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get clientTrafficPolicy =>
+      columnsByName['client_traffic_policy']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get enterpriseEnabled =>
+      columnsByName['enterprise_enabled']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get pubKey =>
+      columnsByName['pub_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get mfaKeysStored =>
+      columnsByName['mfa_keys_stored']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get openidDisplayName =>
+      columnsByName['openid_display_name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get openidProviderKind =>
+      columnsByName['openid_provider_kind']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get mfaContract =>
+      columnsByName['mfa_contract']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<int> _v9_column_0(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'id',
+      aliasedName,
+      false,
+      hasAutoIncrement: true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT',
+    );
+i1.GeneratedColumn<String> _v9_column_1(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'name',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_2(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'uuid',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_3(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'url',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_4(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'device_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_5(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'proxy_url',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_6(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'username',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_7(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'client_traffic_policy',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const i1.CustomExpression('0'),
+    );
+i1.GeneratedColumn<int> _v9_column_8(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'enterprise_enabled',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL CHECK (enterprise_enabled IN (0, 1))',
+    );
+i1.GeneratedColumn<String> _v9_column_9(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'pub_key',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_10(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'mfa_keys_stored',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL CHECK (mfa_keys_stored IN (0, 1))',
+    );
+i1.GeneratedColumn<String> _v9_column_11(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'openid_display_name',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_12(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'openid_provider_kind',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_13(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'mfa_contract',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL DEFAULT \'legacy\'',
+      defaultValue: const i1.CustomExpression('\'legacy\''),
+    );
+
+class V9Shape1 extends i0.VersionedTable {
+  V9Shape1({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get instance =>
+      columnsByName['instance']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get networkId =>
+      columnsByName['network_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get address =>
+      columnsByName['address']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get pubKey =>
+      columnsByName['pub_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get endpoint =>
+      columnsByName['endpoint']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get allowedIps =>
+      columnsByName['allowed_ips']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get dns =>
+      columnsByName['dns']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get mfaEnabled =>
+      columnsByName['mfa_enabled']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get trafficMethod =>
+      columnsByName['traffic_method']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get mfaMethod =>
+      columnsByName['mfa_method']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get keepAliveInterval =>
+      columnsByName['keep_alive_interval']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get locationMfaMode =>
+      columnsByName['location_mfa_mode']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get postureCheckRequired =>
+      columnsByName['posture_check_required']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get mfaSteps =>
+      columnsByName['mfa_steps']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get mfaStepPlan =>
+      columnsByName['mfa_step_plan']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get mtu =>
+      columnsByName['mtu']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _v9_column_14(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'instance',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints:
+          'NOT NULL REFERENCES xguard_instances(id)ON DELETE CASCADE',
+    );
+i1.GeneratedColumn<int> _v9_column_15(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'network_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_16(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'address',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_17(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'endpoint',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_18(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'allowed_ips',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _v9_column_19(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'dns',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_20(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'mfa_enabled',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL CHECK (mfa_enabled IN (0, 1))',
+    );
+i1.GeneratedColumn<String> _v9_column_21(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'traffic_method',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_22(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'mfa_method',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_23(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'keep_alive_interval',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_24(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'location_mfa_mode',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _v9_column_25(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'posture_check_required',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL CHECK (posture_check_required IN (0, 1))',
+    );
+i1.GeneratedColumn<String> _v9_column_26(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'mfa_steps',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+      defaultValue: const i1.CustomExpression('\'[]\''),
+    );
+i1.GeneratedColumn<String> _v9_column_27(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'mfa_step_plan',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+      defaultValue: const i1.CustomExpression('\'[]\''),
+    );
+i1.GeneratedColumn<int> _v9_column_28(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'mtu',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -1175,6 +1552,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
+  required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -1213,6 +1591,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from7To8(migrator, schema);
         return 8;
+      case 8:
+        final schema = Schema9(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from8To9(migrator, schema);
+        return 9;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -1227,6 +1610,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
+  required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -1236,5 +1620,6 @@ i1.OnUpgrade stepByStep({
     from5To6: from5To6,
     from6To7: from6To7,
     from7To8: from7To8,
+    from8To9: from8To9,
   ),
 );

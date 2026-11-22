@@ -3,12 +3,12 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $XGuardInstancesTable extends XGuardInstances
-    with TableInfo<$XGuardInstancesTable, XGuardInstance> {
+class $XguardInstancesTable extends XguardInstances
+    with TableInfo<$XguardInstancesTable, XGuardInstance> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $XGuardInstancesTable(this.attachedDatabase, [this._alias]);
+  $XguardInstancesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -93,7 +93,7 @@ class $XGuardInstancesTable extends XGuardInstances
         requiredDuringInsert: false,
         defaultValue: const Constant(0),
       ).withConverter<ClientTrafficPolicy>(
-        $XGuardInstancesTable.$converterclientTrafficPolicy,
+        $XguardInstancesTable.$converterclientTrafficPolicy,
       );
   static const VerificationMeta _enterpriseEnabledMeta = const VerificationMeta(
     'enterpriseEnabled',
@@ -154,7 +154,7 @@ class $XGuardInstancesTable extends XGuardInstances
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<OpenIdProvider?>(
-        $XGuardInstancesTable.$converteropenidProviderKindn,
+        $XguardInstancesTable.$converteropenidProviderKindn,
       );
   @override
   late final GeneratedColumnWithTypeConverter<MfaContract, String> mfaContract =
@@ -165,9 +165,7 @@ class $XGuardInstancesTable extends XGuardInstances
         type: DriftSqlType.string,
         requiredDuringInsert: false,
         defaultValue: const Constant('legacy'),
-      ).withConverter<MfaContract>(
-        $XGuardInstancesTable.$convertermfaContract,
-      );
+      ).withConverter<MfaContract>($XguardInstancesTable.$convertermfaContract);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -324,7 +322,7 @@ class $XGuardInstancesTable extends XGuardInstances
         DriftSqlType.string,
         data['${effectivePrefix}username'],
       )!,
-      clientTrafficPolicy: $XGuardInstancesTable.$converterclientTrafficPolicy
+      clientTrafficPolicy: $XguardInstancesTable.$converterclientTrafficPolicy
           .fromSql(
             attachedDatabase.typeMapping.read(
               DriftSqlType.int,
@@ -347,14 +345,14 @@ class $XGuardInstancesTable extends XGuardInstances
         DriftSqlType.string,
         data['${effectivePrefix}openid_display_name'],
       ),
-      openidProviderKind: $XGuardInstancesTable.$converteropenidProviderKindn
+      openidProviderKind: $XguardInstancesTable.$converteropenidProviderKindn
           .fromSql(
             attachedDatabase.typeMapping.read(
               DriftSqlType.string,
               data['${effectivePrefix}openid_provider_kind'],
             ),
           ),
-      mfaContract: $XGuardInstancesTable.$convertermfaContract.fromSql(
+      mfaContract: $XguardInstancesTable.$convertermfaContract.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}mfa_contract'],
@@ -364,8 +362,8 @@ class $XGuardInstancesTable extends XGuardInstances
   }
 
   @override
-  $XGuardInstancesTable createAlias(String alias) {
-    return $XGuardInstancesTable(attachedDatabase, alias);
+  $XguardInstancesTable createAlias(String alias) {
+    return $XguardInstancesTable(attachedDatabase, alias);
   }
 
   static TypeConverter<ClientTrafficPolicy, int> $converterclientTrafficPolicy =
@@ -382,8 +380,7 @@ class $XGuardInstancesTable extends XGuardInstances
       const EnumNameConverter<MfaContract>(MfaContract.values);
 }
 
-class XGuardInstance extends DataClass
-    implements Insertable<XGuardInstance> {
+class XGuardInstance extends DataClass implements Insertable<XGuardInstance> {
   final int id;
   final String name;
   final String uuid;
@@ -426,7 +423,7 @@ class XGuardInstance extends DataClass
     map['username'] = Variable<String>(username);
     {
       map['client_traffic_policy'] = Variable<int>(
-        $XGuardInstancesTable.$converterclientTrafficPolicy.toSql(
+        $XguardInstancesTable.$converterclientTrafficPolicy.toSql(
           clientTrafficPolicy,
         ),
       );
@@ -439,21 +436,21 @@ class XGuardInstance extends DataClass
     }
     if (!nullToAbsent || openidProviderKind != null) {
       map['openid_provider_kind'] = Variable<String>(
-        $XGuardInstancesTable.$converteropenidProviderKindn.toSql(
+        $XguardInstancesTable.$converteropenidProviderKindn.toSql(
           openidProviderKind,
         ),
       );
     }
     {
       map['mfa_contract'] = Variable<String>(
-        $XGuardInstancesTable.$convertermfaContract.toSql(mfaContract),
+        $XguardInstancesTable.$convertermfaContract.toSql(mfaContract),
       );
     }
     return map;
   }
 
-  XGuardInstancesCompanion toCompanion(bool nullToAbsent) {
-    return XGuardInstancesCompanion(
+  XguardInstancesCompanion toCompanion(bool nullToAbsent) {
+    return XguardInstancesCompanion(
       id: Value(id),
       name: Value(name),
       uuid: Value(uuid),
@@ -497,9 +494,9 @@ class XGuardInstance extends DataClass
       openidDisplayName: serializer.fromJson<String?>(
         json['openidDisplayName'],
       ),
-      openidProviderKind: $XGuardInstancesTable.$converteropenidProviderKindn
+      openidProviderKind: $XguardInstancesTable.$converteropenidProviderKindn
           .fromJson(serializer.fromJson<String?>(json['openidProviderKind'])),
-      mfaContract: $XGuardInstancesTable.$convertermfaContract.fromJson(
+      mfaContract: $XguardInstancesTable.$convertermfaContract.fromJson(
         serializer.fromJson<String>(json['mfaContract']),
       ),
     );
@@ -523,12 +520,12 @@ class XGuardInstance extends DataClass
       'mfaKeysStored': serializer.toJson<bool>(mfaKeysStored),
       'openidDisplayName': serializer.toJson<String?>(openidDisplayName),
       'openidProviderKind': serializer.toJson<String?>(
-        $XGuardInstancesTable.$converteropenidProviderKindn.toJson(
+        $XguardInstancesTable.$converteropenidProviderKindn.toJson(
           openidProviderKind,
         ),
       ),
       'mfaContract': serializer.toJson<String>(
-        $XGuardInstancesTable.$convertermfaContract.toJson(mfaContract),
+        $XguardInstancesTable.$convertermfaContract.toJson(mfaContract),
       ),
     };
   }
@@ -568,7 +565,7 @@ class XGuardInstance extends DataClass
         : this.openidProviderKind,
     mfaContract: mfaContract ?? this.mfaContract,
   );
-  XGuardInstance copyWithCompanion(XGuardInstancesCompanion data) {
+  XGuardInstance copyWithCompanion(XguardInstancesCompanion data) {
     return XGuardInstance(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
@@ -657,7 +654,7 @@ class XGuardInstance extends DataClass
           other.mfaContract == this.mfaContract);
 }
 
-class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
+class XguardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> uuid;
@@ -672,7 +669,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
   final Value<String?> openidDisplayName;
   final Value<OpenIdProvider?> openidProviderKind;
   final Value<MfaContract> mfaContract;
-  const XGuardInstancesCompanion({
+  const XguardInstancesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.uuid = const Value.absent(),
@@ -688,7 +685,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
     this.openidProviderKind = const Value.absent(),
     this.mfaContract = const Value.absent(),
   });
-  XGuardInstancesCompanion.insert({
+  XguardInstancesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String uuid,
@@ -748,7 +745,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
     });
   }
 
-  XGuardInstancesCompanion copyWith({
+  XguardInstancesCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
     Value<String>? uuid,
@@ -764,7 +761,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
     Value<OpenIdProvider?>? openidProviderKind,
     Value<MfaContract>? mfaContract,
   }) {
-    return XGuardInstancesCompanion(
+    return XguardInstancesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       uuid: uuid ?? this.uuid,
@@ -808,7 +805,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
     }
     if (clientTrafficPolicy.present) {
       map['client_traffic_policy'] = Variable<int>(
-        $XGuardInstancesTable.$converterclientTrafficPolicy.toSql(
+        $XguardInstancesTable.$converterclientTrafficPolicy.toSql(
           clientTrafficPolicy.value,
         ),
       );
@@ -827,14 +824,14 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
     }
     if (openidProviderKind.present) {
       map['openid_provider_kind'] = Variable<String>(
-        $XGuardInstancesTable.$converteropenidProviderKindn.toSql(
+        $XguardInstancesTable.$converteropenidProviderKindn.toSql(
           openidProviderKind.value,
         ),
       );
     }
     if (mfaContract.present) {
       map['mfa_contract'] = Variable<String>(
-        $XGuardInstancesTable.$convertermfaContract.toSql(mfaContract.value),
+        $XguardInstancesTable.$convertermfaContract.toSql(mfaContract.value),
       );
     }
     return map;
@@ -842,7 +839,7 @@ class XGuardInstancesCompanion extends UpdateCompanion<XGuardInstance> {
 
   @override
   String toString() {
-    return (StringBuffer('XGuardInstancesCompanion(')
+    return (StringBuffer('XguardInstancesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('uuid: $uuid, ')
@@ -1051,6 +1048,15 @@ class $LocationsTable extends Locations
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   ).withConverter<List<MfaMethod?>>($LocationsTable.$convertermfaStepPlan);
+  static const VerificationMeta _mtuMeta = const VerificationMeta('mtu');
+  @override
+  late final GeneratedColumn<int> mtu = GeneratedColumn<int>(
+    'mtu',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1070,6 +1076,7 @@ class $LocationsTable extends Locations
     postureCheckRequired,
     mfaSteps,
     mfaStepPlan,
+    mtu,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1174,6 +1181,12 @@ class $LocationsTable extends Locations
         ),
       );
     }
+    if (data.containsKey('mtu')) {
+      context.handle(
+        _mtuMeta,
+        mtu.isAcceptableOrUnknown(data['mtu']!, _mtuMeta),
+      );
+    }
     return context;
   }
 
@@ -1261,6 +1274,10 @@ class $LocationsTable extends Locations
           data['${effectivePrefix}mfa_step_plan'],
         )!,
       ),
+      mtu: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mtu'],
+      ),
     );
   }
 
@@ -1315,6 +1332,9 @@ class Location extends DataClass implements Insertable<Location> {
   /// The user's default method per step, positional. Owned by the MFA settings
   /// screen and by `sanitizeMfaStepPlan`.
   final List<MfaMethod?> mfaStepPlan;
+
+  /// MTU sent by the server (`DeviceConfig.mtu`); null lets the platform pick.
+  final int? mtu;
   const Location({
     required this.id,
     required this.instance,
@@ -1333,6 +1353,7 @@ class Location extends DataClass implements Insertable<Location> {
     this.postureCheckRequired,
     required this.mfaSteps,
     required this.mfaStepPlan,
+    this.mtu,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1380,6 +1401,9 @@ class Location extends DataClass implements Insertable<Location> {
         $LocationsTable.$convertermfaStepPlan.toSql(mfaStepPlan),
       );
     }
+    if (!nullToAbsent || mtu != null) {
+      map['mtu'] = Variable<int>(mtu);
+    }
     return map;
   }
 
@@ -1412,6 +1436,7 @@ class Location extends DataClass implements Insertable<Location> {
           : Value(postureCheckRequired),
       mfaSteps: Value(mfaSteps),
       mfaStepPlan: Value(mfaStepPlan),
+      mtu: mtu == null && nullToAbsent ? const Value.absent() : Value(mtu),
     );
   }
 
@@ -1444,6 +1469,7 @@ class Location extends DataClass implements Insertable<Location> {
       ),
       mfaSteps: serializer.fromJson<List<MfaStep>>(json['mfa_steps']),
       mfaStepPlan: serializer.fromJson<List<MfaMethod?>>(json['mfa_step_plan']),
+      mtu: serializer.fromJson<int?>(json['mtu']),
     );
   }
   @override
@@ -1469,6 +1495,7 @@ class Location extends DataClass implements Insertable<Location> {
       'posture_check_required': serializer.toJson<bool?>(postureCheckRequired),
       'mfa_steps': serializer.toJson<List<MfaStep>>(mfaSteps),
       'mfa_step_plan': serializer.toJson<List<MfaMethod?>>(mfaStepPlan),
+      'mtu': serializer.toJson<int?>(mtu),
     };
   }
 
@@ -1490,6 +1517,7 @@ class Location extends DataClass implements Insertable<Location> {
     Value<bool?> postureCheckRequired = const Value.absent(),
     List<MfaStep>? mfaSteps,
     List<MfaMethod?>? mfaStepPlan,
+    Value<int?> mtu = const Value.absent(),
   }) => Location(
     id: id ?? this.id,
     instance: instance ?? this.instance,
@@ -1514,6 +1542,7 @@ class Location extends DataClass implements Insertable<Location> {
         : this.postureCheckRequired,
     mfaSteps: mfaSteps ?? this.mfaSteps,
     mfaStepPlan: mfaStepPlan ?? this.mfaStepPlan,
+    mtu: mtu.present ? mtu.value : this.mtu,
   );
   Location copyWithCompanion(LocationsCompanion data) {
     return Location(
@@ -1548,6 +1577,7 @@ class Location extends DataClass implements Insertable<Location> {
       mfaStepPlan: data.mfaStepPlan.present
           ? data.mfaStepPlan.value
           : this.mfaStepPlan,
+      mtu: data.mtu.present ? data.mtu.value : this.mtu,
     );
   }
 
@@ -1570,7 +1600,8 @@ class Location extends DataClass implements Insertable<Location> {
           ..write('locationMfaMode: $locationMfaMode, ')
           ..write('postureCheckRequired: $postureCheckRequired, ')
           ..write('mfaSteps: $mfaSteps, ')
-          ..write('mfaStepPlan: $mfaStepPlan')
+          ..write('mfaStepPlan: $mfaStepPlan, ')
+          ..write('mtu: $mtu')
           ..write(')'))
         .toString();
   }
@@ -1594,6 +1625,7 @@ class Location extends DataClass implements Insertable<Location> {
     postureCheckRequired,
     mfaSteps,
     mfaStepPlan,
+    mtu,
   );
   @override
   bool operator ==(Object other) =>
@@ -1615,7 +1647,8 @@ class Location extends DataClass implements Insertable<Location> {
           other.locationMfaMode == this.locationMfaMode &&
           other.postureCheckRequired == this.postureCheckRequired &&
           other.mfaSteps == this.mfaSteps &&
-          other.mfaStepPlan == this.mfaStepPlan);
+          other.mfaStepPlan == this.mfaStepPlan &&
+          other.mtu == this.mtu);
 }
 
 class LocationsCompanion extends UpdateCompanion<Location> {
@@ -1636,6 +1669,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
   final Value<bool?> postureCheckRequired;
   final Value<List<MfaStep>> mfaSteps;
   final Value<List<MfaMethod?>> mfaStepPlan;
+  final Value<int?> mtu;
   const LocationsCompanion({
     this.id = const Value.absent(),
     this.instance = const Value.absent(),
@@ -1654,6 +1688,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     this.postureCheckRequired = const Value.absent(),
     this.mfaSteps = const Value.absent(),
     this.mfaStepPlan = const Value.absent(),
+    this.mtu = const Value.absent(),
   });
   LocationsCompanion.insert({
     this.id = const Value.absent(),
@@ -1673,6 +1708,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     this.postureCheckRequired = const Value.absent(),
     this.mfaSteps = const Value.absent(),
     this.mfaStepPlan = const Value.absent(),
+    this.mtu = const Value.absent(),
   }) : instance = Value(instance),
        networkId = Value(networkId),
        name = Value(name),
@@ -1699,6 +1735,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     Expression<bool>? postureCheckRequired,
     Expression<String>? mfaSteps,
     Expression<String>? mfaStepPlan,
+    Expression<int>? mtu,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1719,6 +1756,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
         'posture_check_required': postureCheckRequired,
       if (mfaSteps != null) 'mfa_steps': mfaSteps,
       if (mfaStepPlan != null) 'mfa_step_plan': mfaStepPlan,
+      if (mtu != null) 'mtu': mtu,
     });
   }
 
@@ -1740,6 +1778,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     Value<bool?>? postureCheckRequired,
     Value<List<MfaStep>>? mfaSteps,
     Value<List<MfaMethod?>>? mfaStepPlan,
+    Value<int?>? mtu,
   }) {
     return LocationsCompanion(
       id: id ?? this.id,
@@ -1759,6 +1798,7 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       postureCheckRequired: postureCheckRequired ?? this.postureCheckRequired,
       mfaSteps: mfaSteps ?? this.mfaSteps,
       mfaStepPlan: mfaStepPlan ?? this.mfaStepPlan,
+      mtu: mtu ?? this.mtu,
     );
   }
 
@@ -1828,6 +1868,9 @@ class LocationsCompanion extends UpdateCompanion<Location> {
         $LocationsTable.$convertermfaStepPlan.toSql(mfaStepPlan.value),
       );
     }
+    if (mtu.present) {
+      map['mtu'] = Variable<int>(mtu.value);
+    }
     return map;
   }
 
@@ -1850,7 +1893,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
           ..write('locationMfaMode: $locationMfaMode, ')
           ..write('postureCheckRequired: $postureCheckRequired, ')
           ..write('mfaSteps: $mfaSteps, ')
-          ..write('mfaStepPlan: $mfaStepPlan')
+          ..write('mfaStepPlan: $mfaStepPlan, ')
+          ..write('mtu: $mtu')
           ..write(')'))
         .toString();
   }
@@ -1859,8 +1903,9 @@ class LocationsCompanion extends UpdateCompanion<Location> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $XGuardInstancesTable xguardInstances =
-      $XGuardInstancesTable(this);
+  late final $XguardInstancesTable xguardInstances = $XguardInstancesTable(
+    this,
+  );
   late final $LocationsTable locations = $LocationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1882,8 +1927,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
-typedef $$XGuardInstancesTableCreateCompanionBuilder =
-    XGuardInstancesCompanion Function({
+typedef $$XguardInstancesTableCreateCompanionBuilder =
+    XguardInstancesCompanion Function({
       Value<int> id,
       required String name,
       required String uuid,
@@ -1899,8 +1944,8 @@ typedef $$XGuardInstancesTableCreateCompanionBuilder =
       Value<OpenIdProvider?> openidProviderKind,
       Value<MfaContract> mfaContract,
     });
-typedef $$XGuardInstancesTableUpdateCompanionBuilder =
-    XGuardInstancesCompanion Function({
+typedef $$XguardInstancesTableUpdateCompanionBuilder =
+    XguardInstancesCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String> uuid,
@@ -1917,14 +1962,10 @@ typedef $$XGuardInstancesTableUpdateCompanionBuilder =
       Value<MfaContract> mfaContract,
     });
 
-final class $$XGuardInstancesTableReferences
+final class $$XguardInstancesTableReferences
     extends
-        BaseReferences<
-          _$AppDatabase,
-          $XGuardInstancesTable,
-          XGuardInstance
-        > {
-  $$XGuardInstancesTableReferences(
+        BaseReferences<_$AppDatabase, $XguardInstancesTable, XGuardInstance> {
+  $$XguardInstancesTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
@@ -1949,9 +1990,9 @@ final class $$XGuardInstancesTableReferences
   }
 }
 
-class $$XGuardInstancesTableFilterComposer
-    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
-  $$XGuardInstancesTableFilterComposer({
+class $$XguardInstancesTableFilterComposer
+    extends Composer<_$AppDatabase, $XguardInstancesTable> {
+  $$XguardInstancesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2057,9 +2098,9 @@ class $$XGuardInstancesTableFilterComposer
   }
 }
 
-class $$XGuardInstancesTableOrderingComposer
-    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
-  $$XGuardInstancesTableOrderingComposer({
+class $$XguardInstancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $XguardInstancesTable> {
+  $$XguardInstancesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2137,9 +2178,9 @@ class $$XGuardInstancesTableOrderingComposer
   );
 }
 
-class $$XGuardInstancesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $XGuardInstancesTable> {
-  $$XGuardInstancesTableAnnotationComposer({
+class $$XguardInstancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $XguardInstancesTable> {
+  $$XguardInstancesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2229,37 +2270,34 @@ class $$XGuardInstancesTableAnnotationComposer
   }
 }
 
-class $$XGuardInstancesTableTableManager
+class $$XguardInstancesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $XGuardInstancesTable,
+          $XguardInstancesTable,
           XGuardInstance,
-          $$XGuardInstancesTableFilterComposer,
-          $$XGuardInstancesTableOrderingComposer,
-          $$XGuardInstancesTableAnnotationComposer,
-          $$XGuardInstancesTableCreateCompanionBuilder,
-          $$XGuardInstancesTableUpdateCompanionBuilder,
-          (XGuardInstance, $$XGuardInstancesTableReferences),
+          $$XguardInstancesTableFilterComposer,
+          $$XguardInstancesTableOrderingComposer,
+          $$XguardInstancesTableAnnotationComposer,
+          $$XguardInstancesTableCreateCompanionBuilder,
+          $$XguardInstancesTableUpdateCompanionBuilder,
+          (XGuardInstance, $$XguardInstancesTableReferences),
           XGuardInstance,
           PrefetchHooks Function({bool locationsRefs})
         > {
-  $$XGuardInstancesTableTableManager(
+  $$XguardInstancesTableTableManager(
     _$AppDatabase db,
-    $XGuardInstancesTable table,
+    $XguardInstancesTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$XGuardInstancesTableFilterComposer($db: db, $table: table),
+              $$XguardInstancesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$XGuardInstancesTableOrderingComposer($db: db, $table: table),
+              $$XguardInstancesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$XGuardInstancesTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
+              $$XguardInstancesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -2278,7 +2316,7 @@ class $$XGuardInstancesTableTableManager
                 Value<OpenIdProvider?> openidProviderKind =
                     const Value.absent(),
                 Value<MfaContract> mfaContract = const Value.absent(),
-              }) => XGuardInstancesCompanion(
+              }) => XguardInstancesCompanion(
                 id: id,
                 name: name,
                 uuid: uuid,
@@ -2312,7 +2350,7 @@ class $$XGuardInstancesTableTableManager
                 Value<OpenIdProvider?> openidProviderKind =
                     const Value.absent(),
                 Value<MfaContract> mfaContract = const Value.absent(),
-              }) => XGuardInstancesCompanion.insert(
+              }) => XguardInstancesCompanion.insert(
                 id: id,
                 name: name,
                 uuid: uuid,
@@ -2331,8 +2369,8 @@ class $$XGuardInstancesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$XGuardInstancesTable, XGuardInstance>(table),
-                  $$XGuardInstancesTableReferences(db, table, e),
+                  e.readTable<$XguardInstancesTable, XGuardInstance>(table),
+                  $$XguardInstancesTableReferences(db, table, e),
                 ),
               )
               .toList(),
@@ -2344,22 +2382,23 @@ class $$XGuardInstancesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (locationsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       XGuardInstance,
-                      $XGuardInstancesTable,
-                      Location
+                      $XguardInstancesTable,
+                      Location,
+                      $LocationsTable
                     >(
                       currentTable: table,
-                      referencedTable: $$XGuardInstancesTableReferences
+                      referencedTable: $$XguardInstancesTableReferences
                           ._locationsRefsTable(db),
                       managerFromTypedResult: (p0) =>
-                          $$XGuardInstancesTableReferences(
+                          $$XguardInstancesTableReferences(
                             db,
                             table,
                             p0,
                           ).locationsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.instance == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'instance',
                       typedResults: items,
                     ),
                 ];
@@ -2370,17 +2409,17 @@ class $$XGuardInstancesTableTableManager
       );
 }
 
-typedef $$XGuardInstancesTableProcessedTableManager =
+typedef $$XguardInstancesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $XGuardInstancesTable,
+      $XguardInstancesTable,
       XGuardInstance,
-      $$XGuardInstancesTableFilterComposer,
-      $$XGuardInstancesTableOrderingComposer,
-      $$XGuardInstancesTableAnnotationComposer,
-      $$XGuardInstancesTableCreateCompanionBuilder,
-      $$XGuardInstancesTableUpdateCompanionBuilder,
-      (XGuardInstance, $$XGuardInstancesTableReferences),
+      $$XguardInstancesTableFilterComposer,
+      $$XguardInstancesTableOrderingComposer,
+      $$XguardInstancesTableAnnotationComposer,
+      $$XguardInstancesTableCreateCompanionBuilder,
+      $$XguardInstancesTableUpdateCompanionBuilder,
+      (XGuardInstance, $$XguardInstancesTableReferences),
       XGuardInstance,
       PrefetchHooks Function({bool locationsRefs})
     >;
@@ -2403,6 +2442,7 @@ typedef $$LocationsTableCreateCompanionBuilder =
       Value<bool?> postureCheckRequired,
       Value<List<MfaStep>> mfaSteps,
       Value<List<MfaMethod?>> mfaStepPlan,
+      Value<int?> mtu,
     });
 typedef $$LocationsTableUpdateCompanionBuilder =
     LocationsCompanion Function({
@@ -2423,20 +2463,21 @@ typedef $$LocationsTableUpdateCompanionBuilder =
       Value<bool?> postureCheckRequired,
       Value<List<MfaStep>> mfaSteps,
       Value<List<MfaMethod?>> mfaStepPlan,
+      Value<int?> mtu,
     });
 
 final class $$LocationsTableReferences
     extends BaseReferences<_$AppDatabase, $LocationsTable, Location> {
   $$LocationsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $XGuardInstancesTable _instanceTable(_$AppDatabase db) => db
+  static $XguardInstancesTable _instanceTable(_$AppDatabase db) => db
       .xguardInstances
       .createAlias('locations__instance__xguard_instances__id');
 
-  $$XGuardInstancesTableProcessedTableManager get instance {
+  $$XguardInstancesTableProcessedTableManager get instance {
     final $_column = $_itemColumn<int>('instance')!;
 
-    final manager = $$XGuardInstancesTableTableManager(
+    final manager = $$XguardInstancesTableTableManager(
       $_db,
       $_db.xguardInstances,
     ).filter((f) => f.id.sqlEquals($_column));
@@ -2542,8 +2583,13 @@ class $$LocationsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  $$XGuardInstancesTableFilterComposer get instance {
-    final $$XGuardInstancesTableFilterComposer composer = $composerBuilder(
+  ColumnFilters<int> get mtu => $composableBuilder(
+    column: $table.mtu,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$XguardInstancesTableFilterComposer get instance {
+    final $$XguardInstancesTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.instance,
       referencedTable: $db.xguardInstances,
@@ -2553,7 +2599,7 @@ class $$LocationsTableFilterComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$XGuardInstancesTableFilterComposer(
+          }) => $$XguardInstancesTableFilterComposer(
             $db: $db,
             $table: $db.xguardInstances,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -2655,8 +2701,13 @@ class $$LocationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$XGuardInstancesTableOrderingComposer get instance {
-    final $$XGuardInstancesTableOrderingComposer composer = $composerBuilder(
+  ColumnOrderings<int> get mtu => $composableBuilder(
+    column: $table.mtu,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$XguardInstancesTableOrderingComposer get instance {
+    final $$XguardInstancesTableOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.instance,
       referencedTable: $db.xguardInstances,
@@ -2666,7 +2717,7 @@ class $$LocationsTableOrderingComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$XGuardInstancesTableOrderingComposer(
+          }) => $$XguardInstancesTableOrderingComposer(
             $db: $db,
             $table: $db.xguardInstances,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -2753,27 +2804,29 @@ class $$LocationsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  $$XGuardInstancesTableAnnotationComposer get instance {
-    final $$XGuardInstancesTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.instance,
-          referencedTable: $db.xguardInstances,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
+  GeneratedColumn<int> get mtu =>
+      $composableBuilder(column: $table.mtu, builder: (column) => column);
+
+  $$XguardInstancesTableAnnotationComposer get instance {
+    final $$XguardInstancesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instance,
+      referencedTable: $db.xguardInstances,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$XguardInstancesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.xguardInstances,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
                 $removeJoinBuilderFromRootComposer,
-              }) => $$XGuardInstancesTableAnnotationComposer(
-                $db: $db,
-                $table: $db.xguardInstances,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
+          ),
+    );
     return composer;
   }
 }
@@ -2823,6 +2876,7 @@ class $$LocationsTableTableManager
                 Value<bool?> postureCheckRequired = const Value.absent(),
                 Value<List<MfaStep>> mfaSteps = const Value.absent(),
                 Value<List<MfaMethod?>> mfaStepPlan = const Value.absent(),
+                Value<int?> mtu = const Value.absent(),
               }) => LocationsCompanion(
                 id: id,
                 instance: instance,
@@ -2841,6 +2895,7 @@ class $$LocationsTableTableManager
                 postureCheckRequired: postureCheckRequired,
                 mfaSteps: mfaSteps,
                 mfaStepPlan: mfaStepPlan,
+                mtu: mtu,
               ),
           createCompanionCallback:
               ({
@@ -2861,6 +2916,7 @@ class $$LocationsTableTableManager
                 Value<bool?> postureCheckRequired = const Value.absent(),
                 Value<List<MfaStep>> mfaSteps = const Value.absent(),
                 Value<List<MfaMethod?>> mfaStepPlan = const Value.absent(),
+                Value<int?> mtu = const Value.absent(),
               }) => LocationsCompanion.insert(
                 id: id,
                 instance: instance,
@@ -2879,6 +2935,7 @@ class $$LocationsTableTableManager
                 postureCheckRequired: postureCheckRequired,
                 mfaSteps: mfaSteps,
                 mfaStepPlan: mfaStepPlan,
+                mtu: mtu,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2951,8 +3008,8 @@ typedef $$LocationsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$XGuardInstancesTableTableManager get xguardInstances =>
-      $$XGuardInstancesTableTableManager(_db, _db.xguardInstances);
+  $$XguardInstancesTableTableManager get xguardInstances =>
+      $$XguardInstancesTableTableManager(_db, _db.xguardInstances);
   $$LocationsTableTableManager get locations =>
       $$LocationsTableTableManager(_db, _db.locations);
 }

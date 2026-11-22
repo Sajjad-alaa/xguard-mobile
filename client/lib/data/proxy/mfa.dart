@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/data/db/enums.dart';
+import 'package:mobile/data/posture/posture.dart';
 
 part 'mfa.g.dart';
 
@@ -9,16 +10,24 @@ class StartMfaRequest {
   final int locationId;
   final MfaMethod method;
 
+  /// Sent only when the location has posture policies.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final DevicePostureFacts? posture;
+
   const StartMfaRequest({
     required this.pubkey,
     required this.locationId,
     required this.method,
+    this.posture,
   });
 
   factory StartMfaRequest.fromJson(Map<String, dynamic> json) =>
       _$StartMfaRequestFromJson(json);
 
-  Map<String, dynamic> toJson() => _$StartMfaRequestToJson(this);
+  Map<String, dynamic> toJson() => {
+    ..._$StartMfaRequestToJson(this),
+    'posture': ?posture?.toJson(),
+  };
 }
 
 @JsonSerializable()

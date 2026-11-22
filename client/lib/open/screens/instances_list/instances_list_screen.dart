@@ -1,7 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/db/database.dart';
+import 'package:mobile/open/config_sync_controller.dart';
 import 'package:mobile/open/riverpod/plugin/plugin.dart';
+import 'package:mobile/open/widgets/toaster/toast_manager.dart';
 import 'package:mobile/open/widgets/dg_app_bar.dart';
 import 'package:mobile/open/widgets/dg_drawer.dart';
 import 'package:mobile/open/widgets/dg_icon_button.dart';
@@ -175,6 +177,23 @@ class InstancesListScreen extends HookConsumerWidget {
                       ),
                     ),
                 ],
+              );
+
+              // Pull to sync every instance's configuration now.
+              list = RefreshIndicator(
+                color: DgColor.bgWhite100,
+                backgroundColor: DgColor.bgDarkBlue80,
+                notificationPredicate: (notification) =>
+                    notification.depth == 0,
+                onRefresh: () async {
+                  final reports = await ref
+                      .read(configSyncServiceProvider)
+                      .syncNow();
+                  ref
+                      .read(toastManagerProvider.notifier)
+                      .show(message: manualSyncMessage(reports));
+                },
+                child: list,
               );
 
               return list;

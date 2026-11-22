@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
@@ -19,6 +20,7 @@ class _FailingTransport implements MfaTransport {
     required String devicePubkey,
     required int networkId,
     required List<MfaMethod> plan,
+    DevicePostureFacts? posture,
   }) async => const MfaSessionStart(
     token: 'flow-token',
     firstStep: MfaStepChallenge(stepAttemptId: 'attempt-1'),

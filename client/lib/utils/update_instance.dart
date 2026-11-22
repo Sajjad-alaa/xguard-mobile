@@ -10,12 +10,22 @@ class UpdateInstanceResult {
   List<int> locationsUpdated;
   List<int> locationsRemoved;
 
+  /// Location row IDs whose tunnel settings (or MFA/posture requirements)
+  /// changed, so a live tunnel built from the old ones is stale. A rename is
+  /// not in here.
+  Set<int> tunnelChanged;
+
+  /// The instance's effective traffic policy changed.
+  bool trafficPolicyChanged;
+
   UpdateInstanceResult({
     required this.instanceChanged,
     required this.locationsAdded,
     required this.locationsUpdated,
     required this.locationsRemoved,
-  });
+    Set<int>? tunnelChanged,
+    this.trafficPolicyChanged = false,
+  }) : tunnelChanged = tunnelChanged ?? <int>{};
 
   bool get didChange {
     return locationsRemoved.isNotEmpty ||
@@ -33,6 +43,17 @@ Future<UpdateInstanceResult?> updateInstance({
   String? token,
 }) async {
   talker.debug("${instance.logName} updated started");
+
+  // A configuration for another instance must never overwrite this one.
+  if (info != null && info.id != instance.uuid) {
+    talker.error(
+      "Instance ${instance.logName} not updated: the server sent the "
+      "configuration of another instance",
+    );
+    return null;
+  }
+  // Service locations belong to the desktop client's background service.
+  final usable = configs.where((config) => !config.isServiceLocation).toList();
 
   final result = UpdateInstanceResult(
     instanceChanged: false,
@@ -58,10 +79,12 @@ Future<UpdateInstanceResult?> updateInstance({
             .filter((row) => row.uuid.equals(instance.uuid))
             .update((_) => companion);
         result.instanceChanged = true;
+        result.trafficPolicyChanged =
+            info.getPolicy() != instance.clientTrafficPolicy;
       }
 
       // Remove deleted/revoked locations
-      final existingConfigs = configs.map((c) => c.networkId);
+      final existingConfigs = usable.map((c) => c.networkId).toSet();
       final List<int> toDelete = locations
           .where((location) => !existingConfigs.contains(location.networkId))
           .map((location) => location.id)
@@ -74,7 +97,7 @@ Future<UpdateInstanceResult?> updateInstance({
         talker.debug("$toDelete Locations will be removed");
       }
 
-      for (final config in configs) {
+      for (final config in usable) {
         final Location? location = locations.firstWhereOrNull(
           (l) => l.networkId == config.networkId,
         );
@@ -96,8 +119,10 @@ Future<UpdateInstanceResult?> updateInstance({
               config.effectiveSteps,
             ),
           );
-          talker.debug(companion.toString());
           result.locationsUpdated.add(companion.id.value);
+          if (!config.tunnelSettingsMatch(location)) {
+            result.tunnelChanged.add(location.id);
+          }
           await db.managers.locations
               .filter((loc) => loc.id.equals(location.id))
               .update((_) => companion);

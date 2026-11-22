@@ -16,8 +16,11 @@ mixin AutoIncrementingPrimaryKey on Table {
   IntColumn get id => integer().autoIncrement()();
 }
 
+// Named `Xguard…` (not `XGuard…`) so drift derives the names every existing
+// database, migration and caller uses: the table `xguard_instances` and the
+// `xguardInstances` accessor. The row class keeps the brand spelling.
 @DataClassName('XGuardInstance')
-class XGuardInstances extends Table with AutoIncrementingPrimaryKey {
+class XguardInstances extends Table with AutoIncrementingPrimaryKey {
   TextColumn get name => text()();
 
   TextColumn get uuid => text()();
@@ -57,7 +60,7 @@ class XGuardInstances extends Table with AutoIncrementingPrimaryKey {
 class Locations extends Table with AutoIncrementingPrimaryKey {
   @JsonKey('instance_id')
   IntColumn get instance => integer().references(
-    XGuardInstances,
+    XguardInstances,
     #id,
     onDelete: KeyAction.cascade,
   )();
@@ -111,9 +114,12 @@ class Locations extends Table with AutoIncrementingPrimaryKey {
   TextColumn get mfaStepPlan => text()
       .withDefault(const Constant('[]'))
       .map(const MfaStepPlanConverter())();
+
+  /// MTU sent by the server (`DeviceConfig.mtu`); null lets the platform pick.
+  IntColumn get mtu => integer().nullable()();
 }
 
-@DriftDatabase(tables: [XGuardInstances, Locations])
+@DriftDatabase(tables: [XguardInstances, Locations])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -135,7 +141,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -223,6 +229,9 @@ class AppDatabase extends _$AppDatabase {
             schema.xguardInstances,
             schema.xguardInstances.mfaContract,
           );
+        },
+        from8To9: (m, schema) async {
+          await m.addColumn(schema.locations, schema.locations.mtu);
         },
       ),
     );

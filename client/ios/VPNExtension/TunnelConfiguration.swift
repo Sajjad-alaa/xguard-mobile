@@ -167,6 +167,11 @@ final class TunnelConfiguration: Codable {
             }
         }
 
+        // Interface MTU sent by XGuard, within the range the daemon accepts.
+        if let value = startData.mtu, (576...9200).contains(value) {
+            mtu = value
+        }
+
         // Peer settings
         peer.preSharedKey = startData.presharedKey
         peer.endpoint = Endpoint(from: startData.endpoint)

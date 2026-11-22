@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/data/db/enums.dart';
+import 'package:mobile/data/posture/posture.dart';
 
 part 'mfa_flow.g.dart';
 
@@ -9,13 +10,21 @@ class MfaFlowStartRequest {
   final String pubkey;
   final List<MfaMethod> selectedMethods;
 
+  /// Sent only when the location has posture policies.
+  @JsonKey(includeToJson: false)
+  final DevicePostureFacts? posture;
+
   const MfaFlowStartRequest({
     required this.locationId,
     required this.pubkey,
     required this.selectedMethods,
+    this.posture,
   });
 
-  Map<String, dynamic> toJson() => _$MfaFlowStartRequestToJson(this);
+  Map<String, dynamic> toJson() => {
+    ..._$MfaFlowStartRequestToJson(this),
+    'posture': ?posture?.toJson(),
+  };
 }
 
 sealed class MfaFlowStartOutcome {

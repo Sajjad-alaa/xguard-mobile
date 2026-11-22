@@ -158,6 +158,15 @@ class DeviceConfig {
   @JsonKey(defaultValue: <MfaStep>[])
   final List<MfaStep> steps;
 
+  /// [2.2] MTU resolved by the server (location value or the lowest group
+  /// override). Null lets the platform pick.
+  final int? mtu;
+
+  /// Service locations (pre-logon, always-on) are run by the desktop client's
+  /// background service. Core does not send them to mobile clients; any that
+  /// arrive are ignored (see [isServiceLocation]).
+  final int? serviceLocationMode;
+
   factory DeviceConfig.fromJson(Map<String, dynamic> json) =>
       _$DeviceConfigFromJson(json);
 
@@ -177,7 +186,28 @@ class DeviceConfig {
     this.locationMfaMode,
     this.postureCheckRequired,
     required this.steps,
+    this.mtu,
+    this.serviceLocationMode,
   });
+
+  /// `ServiceLocationMode` 2 (pre-logon) and 3 (always-on).
+  bool get isServiceLocation =>
+      serviceLocationMode == 2 || serviceLocationMode == 3;
+
+  /// The settings a running tunnel is built from (and the MFA or posture
+  /// requirements of connecting). A change here means a live tunnel is stale;
+  /// a rename is not.
+  bool tunnelSettingsMatch(Location other) =>
+      pubkey == other.pubKey &&
+      endpoint == other.endpoint &&
+      assignedIp == other.address &&
+      allowedIps == other.allowedIps &&
+      dns == other.dns &&
+      keepaliveInterval == other.keepAliveInterval &&
+      mtu == other.mtu &&
+      postureCheckRequired == other.postureCheckRequired &&
+      encodeMfaSteps(effectiveSteps) ==
+          encodeMfaSteps(effectiveMfaSteps(other));
 
   /// Normalizes a pre-2.2 server's single-mode MFA into a one-step flow, so
   /// everything downstream only reads steps.
@@ -196,6 +226,7 @@ class DeviceConfig {
         keepaliveInterval == other.keepAliveInterval &&
         locationMfaMode == other.locationMfaMode &&
         postureCheckRequired == other.postureCheckRequired &&
+        mtu == other.mtu &&
         // Compared through the shim on both sides, so a legacy location does
         // not read as changed on the first poll after the column was added.
         encodeMfaSteps(effectiveSteps) ==
@@ -227,6 +258,7 @@ class DeviceConfig {
       postureCheckRequired: d.Value(postureCheckRequired),
       mfaSteps: d.Value(effectiveSteps),
       mfaStepPlan: d.Value.absentIfNull(mfaStepPlan),
+      mtu: d.Value(mtu),
     );
   }
 }
@@ -279,6 +311,13 @@ class InstanceInfo {
   final OpenIdProvider? openidProviderKind;
   final Map<String, dynamic>? mfaUserState;
 
+  /// [2.1] Hide, block and disconnect bare WireGuard tunnels. The mobile app
+  /// only runs the instance's own locations, so there is nothing to block.
+  final bool? disableTunnels;
+
+  /// [2.2] An OpenID provider is configured and reachable through Edge.
+  final bool? openidAvailable;
+
   const InstanceInfo({
     required this.id,
     required this.name,
@@ -291,6 +330,8 @@ class InstanceInfo {
     this.openidDisplayName,
     this.openidProviderKind,
     this.mfaUserState,
+    this.disableTunnels,
+    this.openidAvailable,
   });
 
   factory InstanceInfo.fromJson(Map<String, dynamic> json) =>
@@ -311,8 +352,8 @@ class InstanceInfo {
         mfaContract == other.mfaContract;
   }
 
-  XGuardInstancesCompanion toCompanion({XGuardInstance? instance}) {
-    return XGuardInstancesCompanion(
+  XguardInstancesCompanion toCompanion({XGuardInstance? instance}) {
+    return XguardInstancesCompanion(
       id: d.Value.absentIfNull(instance?.id),
       pubKey: d.Value.absentIfNull(instance?.pubKey),
       mfaKeysStored: d.Value.absentIfNull(instance?.mfaKeysStored),

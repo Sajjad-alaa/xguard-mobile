@@ -7,24 +7,17 @@ part of 'mfa.dart';
 // **************************************************************************
 
 StartMfaRequest _$StartMfaRequestFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'StartMfaRequest',
-      json,
-      ($checkedConvert) {
-        final val = StartMfaRequest(
-          pubkey: $checkedConvert('pubkey', (v) => v as String),
-          locationId: $checkedConvert('location_id', (v) => (v as num).toInt()),
-          method: $checkedConvert(
-            'method',
-            (v) => $enumDecode(_$MfaMethodEnumMap, v),
-          ),
-        );
-        return val;
-      },
-      fieldKeyMap: const {
-        'locationId': 'location_id',
-      },
-    );
+    $checkedCreate('StartMfaRequest', json, ($checkedConvert) {
+      final val = StartMfaRequest(
+        pubkey: $checkedConvert('pubkey', (v) => v as String),
+        locationId: $checkedConvert('location_id', (v) => (v as num).toInt()),
+        method: $checkedConvert(
+          'method',
+          (v) => $enumDecode(_$MfaMethodEnumMap, v),
+        ),
+      );
+      return val;
+    }, fieldKeyMap: const {'locationId': 'location_id'});
 
 const _$StartMfaRequestFieldMap = <String, String>{
   'pubkey': 'pubkey',
