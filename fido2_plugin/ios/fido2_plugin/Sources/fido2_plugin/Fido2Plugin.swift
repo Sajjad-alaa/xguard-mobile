@@ -113,6 +113,10 @@ public class Fido2Plugin: NSObject, FlutterPlugin {
 
     @MainActor
     private func run(_ ceremony: Ceremony, _ request: AssertionRequest) async {
+        if pending !== ceremony || Task.isCancelled {
+            finish(ceremony) { reportError($0, SmartCardConnectionError.cancelled, timedOut: ceremony.timedOut) }
+            return
+        }
         let connection: NFCSmartCardConnection
         do {
             connection = try await NFCSmartCardConnection(
@@ -250,6 +254,8 @@ private func classify(_ error: Error, timedOut: Bool) -> (String, [String: Any]?
         default:
             return ("unknown", nil)
         }
+    case is CancellationError:
+        return (timedOut ? "timeout" : "cancelled", nil)
     case let error as SmartCardConnectionError:
         return (classify(connection: error, timedOut: timedOut), nil)
     default:

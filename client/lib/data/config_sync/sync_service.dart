@@ -316,48 +316,84 @@ class ConfigSyncService {
     if (active == null || active.instanceId != before.id) {
       return TunnelAction.none;
     }
-    final location = await db.managers.locations
-        .filter((row) => row.id.equals(active.locationId))
-        .getSingleOrNull();
-    final action = planTunnelAction(
-      activeLocationId: active.locationId,
-      removedLocationIds: update.locationsRemoved.toSet(),
-      tunnelChangedLocationIds: update.tunnelChanged,
-      trafficPolicyChanged: update.trafficPolicyChanged,
-      locationExists: location != null,
-      locationNeedsMfa: location != null && shouldStartMfa(location),
-    );
-    switch (action) {
-      case TunnelAction.none:
-        break;
-      case TunnelAction.disconnect:
-        await tunnels.disconnect();
-        notify(
-          'A location of ${before.name} was removed by your administrator. '
-          'Disconnected.',
-        );
-      case TunnelAction.reconnectByUser:
-        notify(
-          'The configuration of ${location!.name} changed. Reconnect to apply '
-          'it.',
-        );
-      case TunnelAction.reconnect:
-        final instance = await db.managers.xguardInstances
-            .filter((row) => row.id.equals(before.id))
-            .getSingleOrNull();
-        if (instance == null) break;
-        final error = await tunnels.reconnect(
-          instance,
-          location!,
-          active.traffic,
-        );
-        if (error != null) {
-          await tunnels.disconnect();
-          notify('Reconnecting to ${location.name} failed: $error');
-        } else {
-          notify('${location.name} reconnected with its new configuration.');
-        }
+    try {
+      final location = await db.managers.locations
+          .filter((row) => row.id.equals(active.locationId))
+          .getSingleOrNull();
+      final action = planTunnelAction(
+        activeLocationId: active.locationId,
+        removedLocationIds: update.locationsRemoved.toSet(),
+        tunnelChangedLocationIds: update.tunnelChanged,
+        trafficPolicyChanged: update.trafficPolicyChanged,
+        locationExists: location != null,
+        locationNeedsMfa: location != null && shouldStartMfa(location),
+      );
+      switch (action) {
+        case TunnelAction.none:
+          break;
+        case TunnelAction.disconnect:
+          try {
+            await tunnels.disconnect();
+          } catch (e, st) {
+            talker.error('Failed to disconnect removed tunnel', e, st);
+          }
+          notify(
+            'A location of ${before.name} was removed by your administrator. '
+            'Disconnected.',
+          );
+        case TunnelAction.reconnectByUser:
+          final mustDisconnect =
+              update.policyTightened.contains(active.locationId) ||
+              update.trafficPolicyChanged;
+          if (mustDisconnect) {
+            try {
+              await tunnels.disconnect();
+            } catch (e, st) {
+              talker.error(
+                'Failed to disconnect tunnel after policy change',
+                e,
+                st,
+              );
+            }
+            notify(
+              'The security policy of ${location!.name} changed. Disconnected; '
+              'reconnect to apply it.',
+            );
+          } else {
+            notify(
+              'The configuration of ${location!.name} changed. Reconnect to '
+              'apply it.',
+            );
+          }
+        case TunnelAction.reconnect:
+          final instance = await db.managers.xguardInstances
+              .filter((row) => row.id.equals(before.id))
+              .getSingleOrNull();
+          if (instance == null) break;
+          final error = await tunnels.reconnect(
+            instance,
+            location!,
+            active.traffic,
+          );
+          if (error != null) {
+            try {
+              await tunnels.disconnect();
+            } catch (e, st) {
+              talker.error(
+                'Failed to disconnect tunnel after reconnect failure',
+                e,
+                st,
+              );
+            }
+            notify('Reconnecting to ${location.name} failed: $error');
+          } else {
+            notify('${location.name} reconnected with its new configuration.');
+          }
+      }
+      return action;
+    } catch (e, st) {
+      talker.error('Applying config sync changes to tunnel failed', e, st);
+      return TunnelAction.none;
     }
-    return action;
   }
 }

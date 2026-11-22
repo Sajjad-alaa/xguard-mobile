@@ -54,7 +54,10 @@ class MfaCodeScreen extends ConsumerWidget {
           } on MfaCodeRejectedException {
             setError('Enter valid code');
           } catch (e) {
-            if (reportIfAttemptLimit(host, e)) return;
+            if (reportIfPostureRejected(host, e) ||
+                reportIfAttemptLimit(host, e)) {
+              return;
+            }
             toaster.showError(
               message: ErrorHandler.getHumanReadableError(e),
               logMessage: "$logLabel MFA code submit failed!",

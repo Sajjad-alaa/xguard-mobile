@@ -27,16 +27,45 @@ final posturePathSegments = [..._apiV1Segments, 'posture'];
 
 const _iosConnectionLostCode = '-1005';
 
+bool _isLoopbackHost(String host) {
+  if (host.toLowerCase() == 'localhost') return true;
+  final address = InternetAddress.tryParse(host);
+  return address != null && address.isLoopback;
+}
+
+/// Resolves [suffix] against [url] only when [url] is HTTPS (or plain HTTP to a
+/// loopback host), has a host, and carries no userinfo. Existing non-empty path
+/// segments are kept as a prefix and query/fragment are stripped.
+@visibleForTesting
+Uri validatedProxyUri(Uri url, List<String> suffix) {
+  final secure =
+      url.scheme == 'https' ||
+      (url.scheme == 'http' && _isLoopbackHost(url.host));
+  if (!secure || url.host.isEmpty || url.userInfo.isNotEmpty) {
+    throw const FormatException('Invalid proxy URL');
+  }
+  return Uri(
+    scheme: url.scheme,
+    host: url.host,
+    port: url.hasPort ? url.port : null,
+    pathSegments: [
+      ...url.pathSegments.where((segment) => segment.isNotEmpty),
+      ...suffix,
+    ],
+  );
+}
+
 bool _isMfaEndpoint(Uri uri) =>
     uri.pathSegments.contains(mfaPathSegments.last) ||
     uri.pathSegments.contains(mfaFlowPathSegments.last);
 
-/// Requests that carry secrets (MFA proofs, polling tokens, preshared keys)
-/// are never logged, not even in debug builds.
+/// Requests that carry secrets (enrollment tokens, MFA proofs, polling tokens,
+/// preshared keys) are never logged, not even in debug builds.
 bool _isSecretEndpoint(Uri uri) {
   final segments = uri.pathSegments;
   final last = segments.isEmpty ? '' : segments.last;
   return _isMfaEndpoint(uri) ||
+      segments.contains(enrollmentPathSegments.last) ||
       last == 'poll' ||
       (last == 'connect' && segments.contains(posturePathSegments.last));
 }
@@ -216,6 +245,7 @@ Dio buildProxyDio({
       talker: talker,
       settings: TalkerDioLoggerSettings(
         printRequestHeaders: !kReleaseMode,
+        printRequestData: !kReleaseMode,
         printResponseData: !kReleaseMode,
         printErrorData: !kReleaseMode,
         requestFilter: (request) => !_isSecretEndpoint(request.uri),
@@ -298,13 +328,10 @@ class ProxyApi {
     required String token,
     required DevicePostureFacts posture,
   }) async {
-    final endpoint = url.replace(
-      pathSegments: [
-        ...url.pathSegments.where((segment) => segment.isNotEmpty),
-        ...posturePathSegments,
-        'connect',
-      ],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...posturePathSegments,
+      'connect',
+    ]);
     final Response<dynamic> response;
     try {
       response = await _dio.postUri(
@@ -337,9 +364,10 @@ class ProxyApi {
     Uri url,
     EnrollmentStartRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...enrollmentPathSegments, 'start'],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...enrollmentPathSegments,
+      'start',
+    ]);
     try {
       final requestBody = data.toJson();
       final response = await _dio.postUri(endpoint, data: requestBody);
@@ -365,13 +393,10 @@ class ProxyApi {
     Uri url,
     CreateDeviceRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [
-        ...url.pathSegments,
-        ...enrollmentPathSegments,
-        'create_device',
-      ],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...enrollmentPathSegments,
+      'create_device',
+    ]);
 
     try {
       final response = await _dio.postUri(endpoint, data: data.toJson());
@@ -394,12 +419,14 @@ class ProxyApi {
   }
 
   Future<StartMfaResponse> startMfa(Uri url, StartMfaRequest data) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaPathSegments, 'start'],
-    );
+    final endpoint = validatedProxyUri(url, [...mfaPathSegments, 'start']);
 
     try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
+      final response = await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return StartMfaResponse.fromJson(response.data);
     } on DioException catch (e) {
       final responseData = e.response?.data;
@@ -427,11 +454,16 @@ class ProxyApi {
     Uri url,
     wire.MfaFlowStartRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaFlowPathSegments, 'start'],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...mfaFlowPathSegments,
+      'start',
+    ]);
     try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
+      final response = await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return wire.MfaFlowStartResponse.fromJson(response.data);
     } on DioException catch (e) {
       _throwIfPostureRejected(e);
@@ -450,11 +482,16 @@ class ProxyApi {
     Uri url,
     wire.MfaFlowStepStartRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaFlowPathSegments, 'step-start'],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...mfaFlowPathSegments,
+      'step-start',
+    ]);
     try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
+      final response = await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return wire.MfaFlowStepStartResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _mfaRequestException(
@@ -472,14 +509,14 @@ class ProxyApi {
     Uri url,
     FinishMfaRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaPathSegments, 'finish'],
-    );
+    final endpoint = validatedProxyUri(url, [...mfaPathSegments, 'finish']);
     try {
       final response = await _dio.postUri(
         endpoint,
         data: data.toJson(),
         options: Options(
+          followRedirects: false,
+          maxRedirects: 0,
           validateStatus: (status) =>
               status != null && (status < 400 || status == 428),
         ),
@@ -487,6 +524,7 @@ class ProxyApi {
       if (response.statusCode == 428) return null;
       return FinishMfaResponse.fromJson(response.data);
     } on DioException catch (e) {
+      _throwIfPostureRejected(e);
       if (e.response?.statusCode == 401 && _mfaResponseFailure(e) == null) {
         throw const MfaCodeRejectedException();
       }
@@ -501,17 +539,19 @@ class ProxyApi {
     Uri url,
     wire.MfaFlowStepFinishRequest data,
   ) async {
-    final endpoint = url.replace(
-      pathSegments: [
-        ...url.pathSegments,
-        ...mfaFlowPathSegments,
-        'step-finish',
-      ],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...mfaFlowPathSegments,
+      'step-finish',
+    ]);
     try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
+      final response = await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return wire.MfaFlowStepFinishResponse.fromJson(response.data);
     } on DioException catch (e) {
+      _throwIfPostureRejected(e);
       if (e.response?.statusCode == 401 && _mfaResponseFailure(e) == null) {
         throw const MfaCodeRejectedException();
       }
@@ -528,36 +568,43 @@ class ProxyApi {
   }
 
   Future<void> finishRemoteMfa(Uri url, FinishMfaRequest data) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaPathSegments, 'finish-remote'],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...mfaPathSegments,
+      'finish-remote',
+    ]);
     try {
-      await _dio.postUri(endpoint, data: data.toJson());
+      await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
     } on DioException catch (e) {
       throw _mfaRequestException('Remote MFA finish', e);
     }
   }
 
   Future<void> approveMfaFlow(Uri url, MfaFlowApproveRequest data) async {
-    final endpoint = url.replace(
-      pathSegments: [...url.pathSegments, ...mfaFlowPathSegments, 'approve'],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ...mfaFlowPathSegments,
+      'approve',
+    ]);
     try {
-      await _dio.postUri(endpoint, data: data.toJson());
+      await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
     } on DioException catch (e) {
       throw _mfaRequestException('MFA flow approval', e);
     }
   }
 
   Future<NetworkInfoResponse> networkInfo(Uri url, String pubKey) async {
-    final endpoint = url.replace(
-      pathSegments: [
-        ...url.pathSegments,
-        ..._apiV1Segments,
-        'enrollment',
-        'network_info',
-      ],
-    );
+    final endpoint = validatedProxyUri(url, [
+      ..._apiV1Segments,
+      'enrollment',
+      'network_info',
+    ]);
     final body = {'pubkey': pubKey};
     final response = await _dio.postUri(endpoint, data: body);
     return NetworkInfoResponse.fromJson(response.data);
@@ -568,14 +615,11 @@ class ProxyApi {
     String authPubKey,
     String devicePubKey,
   ) async {
-    final endpoint = proxyUrl.replace(
-      pathSegments: [
-        ...proxyUrl.pathSegments,
-        ..._apiV1Segments,
-        'enrollment',
-        'register_mobile',
-      ],
-    );
+    final endpoint = validatedProxyUri(proxyUrl, [
+      ..._apiV1Segments,
+      'enrollment',
+      'register_mobile',
+    ]);
     final requestData = RegisterMobileAuth(
       authPubKey: authPubKey,
       devicePubKey: devicePubKey,

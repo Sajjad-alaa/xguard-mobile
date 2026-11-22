@@ -9,6 +9,8 @@ import 'package:mobile/data/mfa/mfa_plan.dart';
 import 'package:mobile/data/plugin/plugin.dart';
 import 'package:mobile/data/posture/collect.dart';
 import 'package:mobile/data/posture/posture.dart';
+import 'package:mobile/data/proxy/config.dart';
+import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/riverpod/biometrics_state.dart';
@@ -17,7 +19,6 @@ import 'package:mobile/utils/instance_secrets.dart';
 import 'package:mobile/utils/error_handler.dart';
 import 'package:mobile/utils/update_instance.dart';
 import 'package:mobile/data/config_sync/config_sync.dart';
-import 'package:mobile/data/proxy/config.dart';
 
 import '../../../../data/db/enums.dart';
 import '../../../../utils/notifications.dart';
@@ -324,7 +325,15 @@ class TunnelService {
       final failure = await _authorizePosture(instance, payload);
       if (failure != null) return failure;
     }
-    await wireguardPlugin.startTunnel(jsonEncode(payload.toJson()));
+    try {
+      await wireguardPlugin.startTunnel(jsonEncode(payload.toJson()));
+    } catch (e) {
+      return ConnectResult.failed(
+        message: ErrorHandler.getHumanReadableError(e),
+        logMessage: 'Unattended reconnect failed',
+        error: e,
+      );
+    }
     return const ConnectResult.connected();
   }
 
@@ -429,7 +438,7 @@ class TunnelService {
       instanceId: instance.id,
       traffic: selectedTrafficMethod,
       postureCheckRequired: location.postureCheckRequired == true,
-      mtu: location.mtu,
+      mtu: sanitizeMtu(location.mtu),
     );
   }
 }

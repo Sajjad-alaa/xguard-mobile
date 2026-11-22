@@ -7,6 +7,7 @@ import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/mfa/mfa_transport.dart';
 import 'package:mobile/data/posture/posture.dart';
+import 'package:mobile/data/proxy/mfa.dart';
 import 'package:mobile/data/proxy/mfa_flow.dart' as wire;
 import 'package:mobile/open/api.dart';
 import 'package:mobile/utils/error_handler.dart';
@@ -362,6 +363,35 @@ void main() {
             selectedMethods: const [MfaMethod.totp],
             posture: facts,
           ),
+        ),
+        throwsA(
+          isA<PostureRejectedException>().having(
+            (e) => e.reasons,
+            'reasons',
+            'OS version',
+          ),
+        ),
+      );
+      await expectLater(
+        () => api.finishMfaFlow(
+          Uri.parse('https://proxy.example'),
+          const wire.MfaFlowStepFinishRequest(
+            token: 'flow-token',
+            stepAttemptId: 'attempt-1',
+          ),
+        ),
+        throwsA(
+          isA<PostureRejectedException>().having(
+            (e) => e.reasons,
+            'reasons',
+            'OS version',
+          ),
+        ),
+      );
+      await expectLater(
+        () => api.finishMfa(
+          Uri.parse('https://proxy.example'),
+          const FinishMfaRequest(token: 'legacy-token'),
         ),
         throwsA(
           isA<PostureRejectedException>().having(

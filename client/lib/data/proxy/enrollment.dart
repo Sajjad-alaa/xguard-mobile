@@ -141,6 +141,10 @@ class Device {
   Map<String, dynamic> toJson() => _$DeviceToJson(this);
 }
 
+/// Keeps an interface MTU in the WireGuard/daemon-accepted range (`576..=9200`),
+/// dropping out-of-range values so the OS chooses a default instead.
+int? sanitizeMtu(int? mtu) => (mtu != null && mtu >= 576 && mtu <= 9200) ? mtu : null;
+
 @JsonSerializable()
 class DeviceConfig {
   final int networkId;
@@ -194,6 +198,8 @@ class DeviceConfig {
   bool get isServiceLocation =>
       serviceLocationMode == 2 || serviceLocationMode == 3;
 
+  int? get sanitizedMtu => sanitizeMtu(mtu);
+
   /// The settings a running tunnel is built from (and the MFA or posture
   /// requirements of connecting). A change here means a live tunnel is stale;
   /// a rename is not.
@@ -204,7 +210,7 @@ class DeviceConfig {
       allowedIps == other.allowedIps &&
       dns == other.dns &&
       keepaliveInterval == other.keepAliveInterval &&
-      mtu == other.mtu &&
+      sanitizedMtu == other.mtu &&
       postureCheckRequired == other.postureCheckRequired &&
       encodeMfaSteps(effectiveSteps) ==
           encodeMfaSteps(effectiveMfaSteps(other));
@@ -226,7 +232,7 @@ class DeviceConfig {
         keepaliveInterval == other.keepAliveInterval &&
         locationMfaMode == other.locationMfaMode &&
         postureCheckRequired == other.postureCheckRequired &&
-        mtu == other.mtu &&
+        sanitizedMtu == other.mtu &&
         // Compared through the shim on both sides, so a legacy location does
         // not read as changed on the first poll after the column was added.
         encodeMfaSteps(effectiveSteps) ==
@@ -245,7 +251,7 @@ class DeviceConfig {
       mfaMethod: d.Value.absentIfNull(mfaMethod),
       trafficMethod: d.Value.absentIfNull(trafficMethod),
       instance: d.Value(instanceId),
-      dns: d.Value.absentIfNull(dns),
+      dns: d.Value(dns),
       pubKey: d.Value(pubkey),
       networkId: d.Value(networkId),
       name: d.Value(networkName),
@@ -258,7 +264,7 @@ class DeviceConfig {
       postureCheckRequired: d.Value(postureCheckRequired),
       mfaSteps: d.Value(effectiveSteps),
       mfaStepPlan: d.Value.absentIfNull(mfaStepPlan),
-      mtu: d.Value(mtu),
+      mtu: d.Value(sanitizedMtu),
     );
   }
 }
@@ -340,10 +346,10 @@ class InstanceInfo {
   Map<String, dynamic> toJson() => _$InstanceInfoToJson(this);
 
   bool matchesXGuardInstance(XGuardInstance other) {
+    // `url` and `proxyUrl` are pinned to the values saved at enrollment so a
+    // sync response cannot redirect the client to a different host.
     return id == other.uuid &&
         name == other.name &&
-        url == other.url &&
-        proxyUrl == other.proxyUrl &&
         username == other.username &&
         enterpriseEnabled == other.enterpriseEnabled &&
         getPolicy() == other.clientTrafficPolicy &&
@@ -358,8 +364,8 @@ class InstanceInfo {
       pubKey: d.Value.absentIfNull(instance?.pubKey),
       mfaKeysStored: d.Value.absentIfNull(instance?.mfaKeysStored),
       name: d.Value(name),
-      url: d.Value(url),
-      proxyUrl: d.Value(proxyUrl),
+      url: d.Value(instance?.url ?? url),
+      proxyUrl: d.Value(instance?.proxyUrl ?? proxyUrl),
       username: d.Value(username),
       enterpriseEnabled: d.Value(enterpriseEnabled),
       clientTrafficPolicy: d.Value(getPolicy()),

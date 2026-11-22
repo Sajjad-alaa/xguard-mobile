@@ -101,13 +101,24 @@ class Fido2Plugin :
     private fun getAssertion(call: MethodCall, result: MethodChannel.Result) {
         val context = context ?: return result.error("nfcUnavailable", "Plugin detached from engine", null)
         val activity = activity ?: return result.error("nfcUnavailable", "No host activity", null)
+        val rpId = call.argument<String>("rpId")
+        val clientDataHash = call.argument<ByteArray>("clientDataHash")
+        val rawAllowCredentials = call.argument<List<*>>("allowCredentials")
+        val allowCredentials = if (rawAllowCredentials != null && rawAllowCredentials.all { it is ByteArray }) {
+            rawAllowCredentials.filterIsInstance<ByteArray>()
+        } else {
+            null
+        }
+        val timeoutMs = call.argument<Number>("timeoutMs")?.toLong()
+        if (rpId == null || clientDataHash == null || allowCredentials == null || timeoutMs == null || timeoutMs <= 0) {
+            return result.error("unknown", "Malformed getAssertion arguments", null)
+        }
         val request = AssertionRequest(
-            rpId = call.argument<String>("rpId")!!,
-            clientDataHash = call.argument<ByteArray>("clientDataHash")!!,
-            allowCredentials = call.argument<List<ByteArray>>("allowCredentials")!!,
+            rpId = rpId,
+            clientDataHash = clientDataHash,
+            allowCredentials = allowCredentials,
             pin = call.argument<String>("pin"),
         )
-        val timeoutMs = call.argument<Int>("timeoutMs")!!.toLong()
 
         cancelPending()
 

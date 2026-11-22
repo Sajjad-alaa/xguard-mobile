@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/utils/error_handler.dart';
 
@@ -77,6 +78,8 @@ void main() {
       ErrorHandler.getOpenIdMfaError(StateError('raw response text')),
       'Authentication failed. Please try again.',
     );
+    final posture = PostureRejectedException('disk encrypted');
+    expect(ErrorHandler.getOpenIdMfaError(posture), posture.userMessage);
   });
 
   test('other MFA server failures read like other HTTP errors', () {

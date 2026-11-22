@@ -52,6 +52,8 @@ void main() {
     final settings = logger.settings;
 
     for (final path in [
+      'https://proxy.example/api/v1/enrollment/start',
+      'https://proxy.example/api/v1/enrollment/create_device',
       'https://proxy.example/api/v1/client-mfa/start',
       'https://proxy.example/api/v1/client-mfa/finish',
       'https://proxy.example/api/v1/client-mfa/finish-remote',
@@ -76,9 +78,37 @@ void main() {
     }
 
     final otherRequest = RequestOptions(
-      path: 'https://proxy.example/api/v1/enrollment/start',
+      path: 'https://proxy.example/api/v1/info',
     );
     expect(settings.requestFilter!(otherRequest), isTrue);
+  });
+
+  test('validatedProxyUri enforces HTTPS or loopback HTTP without userinfo', () {
+    expect(
+      validatedProxyUri(
+        Uri.parse('https://proxy.example/edge/?a=1#frag'),
+        ['api', 'v1', 'client-mfa', 'start'],
+      ).toString(),
+      'https://proxy.example/edge/api/v1/client-mfa/start',
+    );
+    expect(
+      validatedProxyUri(
+        Uri.parse('http://127.0.0.1:8080/p'),
+        ['api', 'v1', 'client-mfa', 'start'],
+      ).toString(),
+      'http://127.0.0.1:8080/p/api/v1/client-mfa/start',
+    );
+    for (final bad in [
+      'http://proxy.example',
+      'https://user:pass@proxy.example',
+      'ftp://proxy.example',
+    ]) {
+      expect(
+        () => validatedProxyUri(Uri.parse(bad), ['api', 'v1', 'poll']),
+        throwsA(isA<FormatException>()),
+        reason: bad,
+      );
+    }
   });
 
   test('base options carry no capability headers', () {

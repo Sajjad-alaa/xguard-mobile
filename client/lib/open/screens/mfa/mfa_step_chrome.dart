@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/utils/error_handler.dart';
 
@@ -35,6 +36,19 @@ bool reportIfAttemptLimit(MfaStepHost host, Object error) {
   host.reportFailure(
     message: ErrorHandler.getHumanReadableError(error),
     logMessage: 'MFA attempt limit reached',
+    error: error,
+  );
+  return true;
+}
+
+/// Posture rejection at MFA completion ends the flow with the failed checks.
+bool reportIfPostureRejected(MfaStepHost host, Object error) {
+  if (error is! PostureRejectedException) {
+    return false;
+  }
+  host.reportFailure(
+    message: error.userMessage,
+    logMessage: 'Device posture rejected at MFA completion',
     error: error,
   );
   return true;

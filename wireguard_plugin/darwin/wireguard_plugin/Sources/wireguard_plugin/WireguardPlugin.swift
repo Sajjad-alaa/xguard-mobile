@@ -389,6 +389,7 @@ public class WireguardPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
                         )
                         return
                     }
+                    return
                 }
             }
             self.saveAndStartTunnel(

@@ -141,6 +141,8 @@ void main() {
           Fido2ProblemKind.pinInvalid,
       const Fido2Exception(Fido2ErrorCode.pinBlocked):
           Fido2ProblemKind.pinBlocked,
+      const Fido2Exception(Fido2ErrorCode.pinAuthBlocked):
+          Fido2ProblemKind.pinAuthBlocked,
       const Fido2Exception(Fido2ErrorCode.noCredentials):
           Fido2ProblemKind.wrongKey,
       const Fido2Exception(Fido2ErrorCode.nfcDisabled):
@@ -162,6 +164,8 @@ void main() {
     expect(wrongPin.retryable, isTrue);
     key.error = const Fido2Exception(Fido2ErrorCode.pinBlocked);
     expect((await run() as Fido2Problem).retryable, isFalse);
+    key.error = const Fido2Exception(Fido2ErrorCode.pinAuthBlocked);
+    expect((await run() as Fido2Problem).retryable, isTrue);
   });
 
   test('refuses an answer signed for another site or without UV', () async {

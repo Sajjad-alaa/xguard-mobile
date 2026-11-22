@@ -6,7 +6,7 @@ import 'package:mobile/data/mfa/mfa_transport.dart';
 /// How long the user has to bring the key to the phone and touch it.
 const Duration fido2CeremonyTimeout = Duration(seconds: 60);
 
-/// Security keys are driven through NFC on Android and iOS, and USB on Android.
+/// Security keys are driven through NFC on Android and iOS.
 bool get fido2PlatformSupported =>
     defaultTargetPlatform == TargetPlatform.android ||
     defaultTargetPlatform == TargetPlatform.iOS;
@@ -28,6 +28,7 @@ enum Fido2ProblemKind {
   pinTooLong,
   pinInvalid,
   pinBlocked,
+  pinAuthBlocked,
   pinNotSet,
   wrongKey,
   noKeyRegistered,
@@ -79,6 +80,9 @@ final class Fido2Problem extends Fido2Outcome {
     Fido2ProblemKind.pinBlocked =>
       'The security key is locked after too many wrong PINs. Reset it, '
           'then register it again from the XGuard desktop client.',
+    Fido2ProblemKind.pinAuthBlocked =>
+      'Too many wrong PIN attempts in a row. Move the security key away from '
+          'your phone and try again.',
     Fido2ProblemKind.pinNotSet =>
       'This security key has no PIN. XGuard needs a key with a PIN.',
     Fido2ProblemKind.wrongKey =>
@@ -88,8 +92,7 @@ final class Fido2Problem extends Fido2Outcome {
           'Register one in the XGuard desktop client.',
     Fido2ProblemKind.nfcDisabled => 'Turn on NFC to use your security key.',
     Fido2ProblemKind.nfcUnavailable =>
-      'This device cannot reach security keys over NFC. Plug a USB key in, '
-          'or use another method.',
+      'This device cannot use NFC for security keys. Use another method.',
     Fido2ProblemKind.unsupportedKey =>
       'This key does not support FIDO2. Use a FIDO2 security key.',
     Fido2ProblemKind.timeout => 'No security key was found in time. Try again.',
@@ -119,8 +122,8 @@ Fido2Problem fido2ProblemFromException(Fido2Exception e) {
     // asking for one anyway means it was not accepted.
     Fido2ErrorCode.pinRequired => Fido2ProblemKind.pinInvalid,
     Fido2ErrorCode.pinInvalid => Fido2ProblemKind.pinInvalid,
-    Fido2ErrorCode.pinBlocked ||
-    Fido2ErrorCode.pinAuthBlocked => Fido2ProblemKind.pinBlocked,
+    Fido2ErrorCode.pinBlocked => Fido2ProblemKind.pinBlocked,
+    Fido2ErrorCode.pinAuthBlocked => Fido2ProblemKind.pinAuthBlocked,
     Fido2ErrorCode.pinNotSet => Fido2ProblemKind.pinNotSet,
     Fido2ErrorCode.unsupportedKey => Fido2ProblemKind.unsupportedKey,
     Fido2ErrorCode.cancelled => Fido2ProblemKind.cancelled,

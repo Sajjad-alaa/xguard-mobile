@@ -26,12 +26,12 @@ public struct TunnelStartData: Codable {
     public var locationId: Int
     public var instanceId: Int
     /// Interface MTU sent by XGuard; nil lets the system pick.
-    public var mtu: UInt32?
+    public var mtu: Int?
 
     public init(publicKey: String, privateKey: String, address: String, dns: String? = nil,
                 endpoint: String, allowedIps: String, keepalive: Int, presharedKey: String? = nil,
                 traffic: TunnelTraffic, locationName: String, locationId: Int, instanceId: Int,
-                mtu: UInt32? = nil) {
+                mtu: Int? = nil) {
         self.publicKey = publicKey
         self.privateKey = privateKey
         self.address = address

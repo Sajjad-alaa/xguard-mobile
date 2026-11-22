@@ -86,7 +86,10 @@ class MfaBiometricScreen extends HookConsumerWidget {
         host.reportProgress(progress);
         return;
       } catch (e) {
-        if (reportIfAttemptLimit(host, e)) return;
+        if (reportIfPostureRejected(host, e) ||
+            reportIfAttemptLimit(host, e)) {
+          return;
+        }
         toaster.showError(
           message: "Verification failed. Please try again.",
           logMessage: "Biometric MFA challenge submit failed!",

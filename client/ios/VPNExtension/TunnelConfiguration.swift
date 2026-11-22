@@ -67,8 +67,11 @@ final class TunnelConfiguration: Codable {
         ipv6Settings.includedRoutes = ipv6IncludedRoutes
         networkSettings.ipv6Settings = ipv6Settings
 
-        networkSettings.mtu = mtu as NSNumber?
-        networkSettings.tunnelOverheadBytes = 80
+        if let mtu = mtu {
+            networkSettings.mtu = NSNumber(value: mtu)
+        } else {
+            networkSettings.tunnelOverheadBytes = 80
+        }
 
         let dnsSettings = NEDNSSettings(servers: dns)
         if !dns.isEmpty {
@@ -169,7 +172,7 @@ final class TunnelConfiguration: Codable {
 
         // Interface MTU sent by XGuard, within the range the daemon accepts.
         if let value = startData.mtu, (576...9200).contains(value) {
-            mtu = value
+            mtu = UInt32(value)
         }
 
         // Peer settings

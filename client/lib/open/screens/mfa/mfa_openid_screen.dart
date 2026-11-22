@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/mfa/openid_mfa.dart';
+import 'package:mobile/data/posture/posture.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_chrome.dart';
@@ -28,9 +30,15 @@ typedef OpenIdBrowserLauncher = Future<bool> Function(Uri url);
 
 Future<bool> launchOpenIdBrowser(Uri url) async {
   try {
-    if (await launchUrl(url, mode: LaunchMode.inAppBrowserView)) return true;
+    if (await supportsLaunchMode(LaunchMode.inAppBrowserView)) {
+      if (await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
+        return true;
+      }
+      await _closeOpenIdBrowser();
+    }
   } catch (e) {
     talker.warning('In-app browser unavailable: ${e.runtimeType}');
+    await _closeOpenIdBrowser();
   }
   return launchUrl(url, mode: LaunchMode.externalApplication);
 }
@@ -73,8 +81,15 @@ class MfaOpenIdScreen extends HookConsumerWidget {
     final error = useState<String?>(null);
     final poller = useRef<OpenIdMfaPoller?>(null);
     final url = useRef<Uri?>(null);
+    final launching = useRef(false);
+    final mounted = useRef(true);
 
-    useEffect(() => () => poller.value?.cancel(), const []);
+    useEffect(() {
+      return () {
+        mounted.value = false;
+        poller.value?.cancel();
+      };
+    }, const []);
     useOnAppLifecycleStateChange((_, state) {
       if (state == AppLifecycleState.resumed) poller.value?.pollNow();
     });
@@ -87,7 +102,7 @@ class MfaOpenIdScreen extends HookConsumerWidget {
       phase.value = _Phase.waiting;
       error.value = null;
       final outcome = await current.run();
-      if (!identical(poller.value, current)) return;
+      if (!mounted.value || !identical(poller.value, current)) return;
       poller.value = null;
       switch (outcome) {
         case OpenIdPollFinished(:final progress):
@@ -103,7 +118,10 @@ class MfaOpenIdScreen extends HookConsumerWidget {
           );
         case OpenIdPollFailed(error: final failure):
           unawaited(_closeOpenIdBrowser());
-          if (reportIfAttemptLimit(host, failure)) return;
+          if (reportIfPostureRejected(host, failure) ||
+              reportIfAttemptLimit(host, failure)) {
+            return;
+          }
           if (failure is MfaRequestException &&
               (failure.failure == MfaRequestFailure.sessionExpired ||
                   failure.failure == MfaRequestFailure.staleAttempt)) {
@@ -117,45 +135,57 @@ class MfaOpenIdScreen extends HookConsumerWidget {
             );
             return;
           }
-          talker.error('OpenID MFA polling failed', failure);
+          final logError = failure is PostureRejectedException ? null : failure;
+          talker.error('OpenID MFA polling failed', logError);
           error.value = ErrorHandler.getOpenIdMfaError(failure);
           phase.value = _Phase.retry;
       }
     }
 
     Future<void> openBrowser() async {
-      final token = host.controller.token;
-      final Uri target;
+      if (launching.value) return;
+      launching.value = true;
       try {
-        target =
-            url.value ??
-            buildOpenIdMfaUrl(
-              proxyUrl,
-              token ?? '',
-              host.controller.stepAttemptId,
-            );
-      } on OpenIdUrlException catch (e) {
-        host.reportFailure(
-          message: 'This instance cannot use OpenID verification.',
-          logMessage: 'OpenID MFA URL refused: ${e.message}',
-          error: e,
-        );
-        return;
+        final token = host.controller.token;
+        final Uri target;
+        try {
+          target =
+              url.value ??
+              buildOpenIdMfaUrl(
+                proxyUrl,
+                token ?? '',
+                host.controller.stepAttemptId,
+              );
+        } on OpenIdUrlException catch (e) {
+          host.reportFailure(
+            message: 'This instance cannot use OpenID verification.',
+            logMessage: 'OpenID MFA URL refused: ${e.message}',
+            error: e,
+          );
+          return;
+        }
+        url.value = target;
+        final bool opened;
+        try {
+          opened = await launcher(target);
+        } catch (e) {
+          if (!mounted.value) return;
+          error.value = 'Could not open the browser.';
+          final detail = e is PlatformException ? ' (${e.code})' : '';
+          talker.error(
+            'Failed to open the OpenID MFA page: ${e.runtimeType}$detail',
+          );
+          return;
+        }
+        if (!mounted.value) return;
+        if (!opened) {
+          error.value = 'Could not open the browser.';
+          return;
+        }
+        if (poller.value == null) unawaited(waitForSignIn());
+      } finally {
+        launching.value = false;
       }
-      url.value = target;
-      final bool opened;
-      try {
-        opened = await launcher(target);
-      } catch (e) {
-        error.value = 'Could not open the browser.';
-        talker.error('Failed to open the OpenID MFA page', e);
-        return;
-      }
-      if (!opened) {
-        error.value = 'Could not open the browser.';
-        return;
-      }
-      if (poller.value == null) unawaited(waitForSignIn());
     }
 
     if (phase.value == _Phase.intro) {
@@ -165,6 +195,7 @@ class MfaOpenIdScreen extends HookConsumerWidget {
           openidDisplayName: openidDisplayName,
           openidProvider: openidProvider,
           stepLabel: host.controller.stepLabel,
+          errorMessage: error.value,
           onContinue: openBrowser,
           onBack: host.abort,
         ),

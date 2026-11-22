@@ -203,12 +203,12 @@ class InstanceScreen extends HookConsumerWidget {
                     color: DgColor.bgWhite100,
                     backgroundColor: DgColor.bgDarkBlue80,
                     onRefresh: () async {
+                      final toaster = ref.read(toastManagerProvider.notifier);
                       final reports = await ref
                           .read(configSyncServiceProvider)
                           .syncNow(instanceId: data.instance.id);
-                      ref
-                          .read(toastManagerProvider.notifier)
-                          .show(message: manualSyncMessage(reports));
+                      if (!context.mounted) return;
+                      toaster.show(message: manualSyncMessage(reports));
                     },
                     child: content,
                   );
@@ -528,6 +528,7 @@ class _LocationList extends HookConsumerWidget {
         .toList();
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(
         DgSpacing.xl,
         DgSpacing.sm,

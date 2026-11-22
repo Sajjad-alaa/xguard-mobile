@@ -47,6 +47,11 @@ class _FakeTunnels implements ConfigSyncTunnels {
   }
 }
 
+class _ThrowingDisconnectTunnels extends _FakeTunnels {
+  @override
+  Future<void> disconnect() => Future.error(StateError('plugin failure'));
+}
+
 class _FixedRandom implements Random {
   final double value;
 
@@ -95,13 +100,17 @@ class _StubAdapter implements HttpClientAdapter {
 Map<String, dynamic> _configPayload({
   String instanceUuid = 'inst-uuid-1',
   String instanceName = 'Office',
+  String url = 'https://xguard.example.com',
+  String proxyUrl = 'https://edge.example.com',
   int clientTrafficPolicy = 0,
   bool disableTunnels = false,
   int networkId = 11,
   String locationName = 'HQ',
   String endpoint = 'vpn.example.com:51820',
+  String? dns = '10.0.0.1',
   int? mtu = 1380,
   bool mfaEnabled = false,
+  bool postureCheckRequired = false,
   List<Map<String, dynamic>>? steps,
   int? serviceLocationMode,
 }) => {
@@ -115,8 +124,8 @@ Map<String, dynamic> _configPayload({
   'instance': {
     'id': instanceUuid,
     'name': instanceName,
-    'url': 'https://xguard.example.com',
-    'proxy_url': 'https://edge.example.com',
+    'url': url,
+    'proxy_url': proxyUrl,
     'username': 'alice',
     'enterprise_enabled': true,
     'disable_all_traffic': clientTrafficPolicy == 1,
@@ -135,11 +144,11 @@ Map<String, dynamic> _configPayload({
       'assigned_ip': '10.0.0.2/24',
       'pubkey': 'loc-pubkey-$networkId',
       'allowed_ips': '10.0.0.0/24',
-      'dns': '10.0.0.1',
+      'dns': dns,
       'mfa_enabled': mfaEnabled,
       'keepalive_interval': 25,
       'location_mfa_mode': mfaEnabled ? 2 : 1,
-      'posture_check_required': false,
+      'posture_check_required': postureCheckRequired,
       'steps': ?steps,
       'mtu': mtu,
       'service_location_mode': serviceLocationMode,
@@ -700,10 +709,173 @@ void main() {
 
         final report = await service.syncNow();
         expect(report[instance.id]?.result, SyncResult.changed);
-        expect(report[instance.id]?.tunnelAction, TunnelAction.reconnectByUser);
+      expect(report[instance.id]?.tunnelAction, TunnelAction.reconnectByUser);
         expect(tunnels.reconnectCalls, isEmpty);
         expect(tunnels.disconnectCount, 0);
         expect(notices.single, contains('Reconnect to apply it.'));
+      },
+    );
+
+    test(
+      'disconnects live tunnel when policy tightens on MFA location, pins URLs, clears DNS, and sanitizes MTU',
+      () async {
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        final tunnels = _FakeTunnels();
+        final notices = <String>[];
+        final (instance, location) = await _seedInstance(db, locationMfa: false);
+        tunnels.current = PluginTunnelEventData(
+          instanceId: instance.id,
+          locationId: location.id,
+          traffic: RoutingMethod.all,
+        );
+
+        late ConfigPoll nextPoll;
+        final service = ConfigSyncService(
+          db: db,
+          fetch: (_, _, _) async => nextPoll,
+          readToken: (_) async => 'poll-tok',
+          tunnels: tunnels,
+          notify: notices.add,
+          random: const _FixedRandom(0.5),
+        );
+        addTearDown(service.dispose);
+
+        // Tightening MFA on an active non-MFA location disconnects immediately;
+        // mismatched server URLs stay pinned, cleared DNS becomes null, and bad MTU is ignored.
+        nextPoll = parsePollResponse({
+          'not_modified': false,
+          'config_revision': 'x1-tight-1',
+          'device_config': _configPayload(
+            url: 'http://evil.example.com',
+            proxyUrl: 'http://evil-edge.example.com',
+            dns: null,
+            mtu: 10,
+            mfaEnabled: true,
+          ),
+        });
+        final first = await service.syncNow();
+        expect(first[instance.id]?.result, SyncResult.changed);
+        expect(first[instance.id]?.tunnelAction, TunnelAction.reconnectByUser);
+        expect(tunnels.disconnectCount, 1);
+        expect(tunnels.active, isNull);
+        expect(notices.last, contains('Disconnected; reconnect to apply it.'));
+
+        final syncedInstance = await db.managers.xguardInstances
+            .filter((r) => r.id.equals(instance.id))
+            .getSingle();
+        expect(syncedInstance.url, 'https://xguard.example.com');
+        expect(syncedInstance.proxyUrl, 'https://edge.example.com');
+
+        final syncedLocation = await db.managers.locations
+            .filter((r) => r.id.equals(location.id))
+            .getSingle();
+        expect(syncedLocation.dns, isNull);
+        expect(syncedLocation.mtu, isNull);
+
+        // Posture requirement added on an MFA location also disconnects.
+        tunnels.current = PluginTunnelEventData(
+          instanceId: instance.id,
+          locationId: location.id,
+          traffic: RoutingMethod.all,
+        );
+        await db
+            .into(db.locations)
+            .insertOnConflictUpdate(
+              LocationsCompanion(
+                id: d.Value(location.id),
+                instance: d.Value(instance.id),
+                networkId: d.Value(location.networkId),
+                name: d.Value(location.name),
+                address: d.Value(location.address),
+                pubKey: d.Value(location.pubKey),
+                endpoint: d.Value(location.endpoint),
+                allowedIps: d.Value(location.allowedIps),
+                keepAliveInterval: d.Value(location.keepAliveInterval),
+              ),
+            );
+        nextPoll = parsePollResponse({
+          'not_modified': false,
+          'config_revision': 'x1-tight-2',
+          'device_config': _configPayload(
+            mfaEnabled: true,
+            postureCheckRequired: true,
+            mtu: 10000,
+          ),
+        });
+        final service2 = ConfigSyncService(
+          db: db,
+          fetch: (_, _, _) async => nextPoll,
+          readToken: (_) async => 'poll-tok',
+          tunnels: tunnels,
+          notify: notices.add,
+          random: const _FixedRandom(0.5),
+        );
+        addTearDown(service2.dispose);
+        final second = await service2.syncNow();
+        expect(second[instance.id]?.tunnelAction, TunnelAction.reconnectByUser);
+        expect(tunnels.disconnectCount, 2);
+      },
+    );
+
+    test(
+      'advances schedule even if tunnels.disconnect throws on policy change',
+      () {
+        fakeAsync((async) {
+          final db = AppDatabase(NativeDatabase.memory());
+          final throwingTunnels = _ThrowingDisconnectTunnels();
+          final notices = <String>[];
+
+          Future<void> run() async {
+            final (instance, location) = await _seedInstance(
+              db,
+              locationMfa: true,
+            );
+            throwingTunnels.current = PluginTunnelEventData(
+              instanceId: instance.id,
+              locationId: location.id,
+              traffic: RoutingMethod.all,
+            );
+            final service = ConfigSyncService(
+              db: db,
+              fetch: (_, _, _) async => parsePollResponse({
+                'not_modified': false,
+                'config_revision': 'x1-err',
+                'poll_interval_secs': 90,
+                'device_config': _configPayload(
+                  mfaEnabled: true,
+                  clientTrafficPolicy: 1,
+                ),
+              }),
+              readToken: (_) async => 'poll-tok',
+              tunnels: throwingTunnels,
+              notify: notices.add,
+              random: const _FixedRandom(0.5),
+            );
+
+            final report = await service.syncNow();
+            expect(report[instance.id]?.result, SyncResult.changed);
+            expect(
+              service.nextDueOf(instance.id),
+              clock.now().add(const Duration(seconds: 90)),
+            );
+            service.dispose();
+            await db.close();
+          }
+
+          var done = false;
+          Object? err;
+          run().then(
+            (_) => done = true,
+            onError: (Object e) {
+              err = e;
+              done = true;
+            },
+          );
+          async.flushMicrotasks();
+          expect(done, isTrue);
+          if (err != null) fail('Unexpected error: $err');
+        });
       },
     );
 

@@ -17,6 +17,7 @@ class DgOpenIdMfaLayout extends StatelessWidget {
   final VoidCallback onContinue;
   final String? stepLabel;
   final VoidCallback onBack;
+  final String? errorMessage;
 
   const DgOpenIdMfaLayout({
     super.key,
@@ -25,6 +26,7 @@ class DgOpenIdMfaLayout extends StatelessWidget {
     required this.onBack,
     this.openidDisplayName,
     this.stepLabel,
+    this.errorMessage,
   });
 
   @override
@@ -69,6 +71,14 @@ class DgOpenIdMfaLayout extends StatelessWidget {
                     "assets/next/rive/open_id.riv",
                   ),
                 ),
+                if (errorMessage != null) ...[
+                  Text(
+                    errorMessage!,
+                    key: const Key('mfa_openid_intro_error'),
+                    style: DgText.bodySm400.copyWith(color: DgColor.fgWhite80),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 DgExternalProviderButton(
                   text: 'Continue with $providerName',
                   provider: openidProvider,

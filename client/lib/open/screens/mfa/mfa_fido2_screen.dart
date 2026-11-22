@@ -8,6 +8,7 @@ import 'package:mobile/data/fido2/ceremony.dart';
 import 'package:mobile/data/mfa/mfa_flow.dart';
 import 'package:mobile/data/proxy/mfa.dart';
 import 'package:mobile/logging.dart';
+import 'package:mobile/open/api.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_chrome.dart';
 import 'package:mobile/open/widgets/dg_app_bar.dart';
 import 'package:mobile/open/widgets/dg_button.dart';
@@ -20,9 +21,9 @@ import 'package:mobile/theme/spacing.dart';
 import 'package:mobile/theme/text.dart';
 import 'package:mobile/utils/error_handler.dart';
 
-/// FIDO2 VPN MFA: the user enters the key's PIN and taps the key (NFC) or
-/// plugs it in (USB, Android). The key signs Core's challenge for this MFA
-/// attempt over the canonical client data of the instance's own origin.
+/// FIDO2 VPN MFA: the user enters the key's PIN and taps the key over NFC.
+/// The key signs Core's challenge for this MFA attempt over the canonical
+/// client data of the instance's own origin.
 class MfaFido2Screen extends HookConsumerWidget {
   final MfaStepHost host;
 
@@ -72,7 +73,11 @@ class MfaFido2Screen extends HookConsumerWidget {
             await host.controller.reissueStep();
             needsNewChallenge.value = false;
           } catch (e) {
-            if (reportIfAttemptLimit(host, e)) return;
+            if (!mounted.value) return;
+            if (reportIfPostureRejected(host, e) ||
+                reportIfAttemptLimit(host, e)) {
+              return;
+            }
             host.reportFailure(
               message: ErrorHandler.getHumanReadableError(e),
               logMessage: 'Failed to re-issue the FIDO2 step',
@@ -128,13 +133,28 @@ class MfaFido2Screen extends HookConsumerWidget {
               final progress = await host.controller.submit(
                 credential: credential,
               );
+              if (!mounted.value) return;
               if (progress is MfaStepAwaiting) {
                 throw StateError('FIDO2 step returned an out-of-band outcome');
               }
               host.reportProgress(progress);
             } catch (e) {
+              if (!mounted.value) return;
               needsNewChallenge.value = true;
-              if (reportIfAttemptLimit(host, e)) return;
+              if (reportIfPostureRejected(host, e) ||
+                  reportIfAttemptLimit(host, e)) {
+                return;
+              }
+              if (e is MfaRequestException &&
+                  (e.failure == MfaRequestFailure.sessionExpired ||
+                      e.failure == MfaRequestFailure.staleAttempt)) {
+                host.reportFailure(
+                  message: ErrorHandler.getHumanReadableError(e),
+                  logMessage: 'FIDO2 MFA session ended on submission',
+                  error: e,
+                );
+                return;
+              }
               talker.error('FIDO2 MFA answer refused', e);
               message.value = e is MfaCodeRejectedException
                   ? 'XGuard did not accept the security key. Make sure it is '
@@ -187,8 +207,7 @@ class MfaFido2Screen extends HookConsumerWidget {
                           Text(
                             waitingForKey.value
                                 ? 'Hold your security key against the back of '
-                                      'the phone, or plug it in, and touch it '
-                                      'if it blinks.'
+                                      'the phone until verification finishes.'
                                 : 'Enter the PIN of your security key, then '
                                       'tap Verify.',
                             key: const Key('mfa_fido2_instructions'),

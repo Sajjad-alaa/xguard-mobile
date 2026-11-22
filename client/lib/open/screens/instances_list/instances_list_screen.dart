@@ -186,12 +186,12 @@ class InstancesListScreen extends HookConsumerWidget {
                 notificationPredicate: (notification) =>
                     notification.depth == 0,
                 onRefresh: () async {
+                  final toaster = ref.read(toastManagerProvider.notifier);
                   final reports = await ref
                       .read(configSyncServiceProvider)
                       .syncNow();
-                  ref
-                      .read(toastManagerProvider.notifier)
-                      .show(message: manualSyncMessage(reports));
+                  if (!context.mounted) return;
+                  toaster.show(message: manualSyncMessage(reports));
                 },
                 child: list,
               );

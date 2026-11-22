@@ -67,6 +67,7 @@ class ErrorHandler {
   }
 
   static String getOpenIdMfaError(Object e) {
+    if (e is PostureRejectedException) return e.userMessage;
     if (e is DioException && e.response == null) {
       return getHumanReadableError(e);
     }

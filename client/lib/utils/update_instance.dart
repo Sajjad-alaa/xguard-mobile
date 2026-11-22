@@ -15,6 +15,10 @@ class UpdateInstanceResult {
   /// not in here.
   Set<int> tunnelChanged;
 
+  /// Location row IDs whose MFA or posture requirements tightened (e.g. MFA
+  /// gained steps or posture check became required).
+  Set<int> policyTightened;
+
   /// The instance's effective traffic policy changed.
   bool trafficPolicyChanged;
 
@@ -24,8 +28,10 @@ class UpdateInstanceResult {
     required this.locationsUpdated,
     required this.locationsRemoved,
     Set<int>? tunnelChanged,
+    Set<int>? policyTightened,
     this.trafficPolicyChanged = false,
-  }) : tunnelChanged = tunnelChanged ?? <int>{};
+  }) : tunnelChanged = tunnelChanged ?? <int>{},
+       policyTightened = policyTightened ?? <int>{};
 
   bool get didChange {
     return locationsRemoved.isNotEmpty ||
@@ -63,24 +69,29 @@ Future<UpdateInstanceResult?> updateInstance({
   );
 
   try {
-    // Store rotated token first as it is the only copy
-    if (token != null) {
-      await instance.storeToken(token);
-      talker.debug("${instance.logName} token updated");
-    }
-
-    final locations = await db.managers.locations
-        .filter((row) => row.instance.id.equals(instance.id))
-        .get();
+    var aborted = false;
+    XGuardInstance? liveInstance;
     await db.transaction(() async {
-      if (info != null && !info.matchesXGuardInstance(instance)) {
-        final companion = info.toCompanion(instance: instance);
+      final live = await db.managers.xguardInstances
+          .filter((row) => row.id.equals(instance.id))
+          .getSingleOrNull();
+      if (live == null) {
+        aborted = true;
+        return;
+      }
+      liveInstance = live;
+      final locations = await db.managers.locations
+          .filter((row) => row.instance.id.equals(live.id))
+          .get();
+
+      if (info != null && !info.matchesXGuardInstance(live)) {
+        final companion = info.toCompanion(instance: live);
         await db.managers.xguardInstances
-            .filter((row) => row.uuid.equals(instance.uuid))
+            .filter((row) => row.id.equals(live.id))
             .update((_) => companion);
         result.instanceChanged = true;
         result.trafficPolicyChanged =
-            info.getPolicy() != instance.clientTrafficPolicy;
+            info.getPolicy() != live.clientTrafficPolicy;
       }
 
       // Remove deleted/revoked locations
@@ -102,7 +113,7 @@ Future<UpdateInstanceResult?> updateInstance({
           (l) => l.networkId == config.networkId,
         );
         if (location == null) {
-          final companion = config.toCompanion(instanceId: instance.id);
+          final companion = config.toCompanion(instanceId: live.id);
           await db.managers.locations.create((_) => companion);
           talker.debug("Location ${config.networkName} will be added");
           result.locationsAdded++;
@@ -110,7 +121,7 @@ Future<UpdateInstanceResult?> updateInstance({
         }
         if (!config.matchesLocation(location)) {
           final companion = config.toCompanion(
-            instanceId: instance.id,
+            instanceId: live.id,
             id: location.id,
             trafficMethod: location.trafficMethod,
             mfaMethod: location.mfaMethod,
@@ -123,6 +134,15 @@ Future<UpdateInstanceResult?> updateInstance({
           if (!config.tunnelSettingsMatch(location)) {
             result.tunnelChanged.add(location.id);
           }
+          final mfaTightened =
+              (!shouldStartMfa(location) && config.effectiveSteps.isNotEmpty) ||
+              config.effectiveSteps.length > effectiveMfaSteps(location).length;
+          final postureTightened =
+              location.postureCheckRequired != true &&
+              config.postureCheckRequired == true;
+          if (mfaTightened || postureTightened) {
+            result.policyTightened.add(location.id);
+          }
           await db.managers.locations
               .filter((loc) => loc.id.equals(location.id))
               .update((_) => companion);
@@ -132,6 +152,16 @@ Future<UpdateInstanceResult?> updateInstance({
         }
       }
     });
+    if (aborted || liveInstance == null) {
+      talker.warning(
+        "Instance ${instance.logName} was deleted before update committed",
+      );
+      return null;
+    }
+    if (token != null && token.isNotEmpty) {
+      await liveInstance!.storeToken(token);
+      talker.debug("${liveInstance!.logName} token updated");
+    }
     talker.debug("Instance ${instance.logName} update transaction finished");
     return result;
   } catch (e) {
