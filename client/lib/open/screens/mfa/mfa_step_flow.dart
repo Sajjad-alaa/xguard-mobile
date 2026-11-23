@@ -127,6 +127,7 @@ class MfaStepFlow implements MfaStepHost {
       case MfaStepCompleted():
         _finish(const MfaFlowConnected());
       case MfaStepAwaiting():
+      case MfaStepRadiusChallenge():
         break;
     }
   }
@@ -167,5 +168,6 @@ class MfaStepFlow implements MfaStepHost {
       openidProvider: openidProvider ?? OpenIdProvider.custom,
     ),
     MfaMethod.fido2 => MfaFido2Screen(host: this, instanceUrl: instanceUrl),
+    MfaMethod.radius => MfaTotpScreen(host: this),
   };
 }

@@ -11,6 +11,7 @@ enum ApiMfaMethod {
   biometric(3),
   mobileApprove(4),
   fido2(5),
+  radius(6),
   unknown(-1);
 
   final int value;
@@ -26,6 +27,7 @@ enum ApiMfaMethod {
     MfaMethod.openid => oidc,
     MfaMethod.biometric => biometric,
     MfaMethod.fido2 => fido2,
+    MfaMethod.radius => radius,
   };
 
   /// Null when this client cannot perform the method.
@@ -37,6 +39,7 @@ enum ApiMfaMethod {
     oidc => MfaMethod.openid,
     // NFC (and USB on Android) security keys; the contract check is separate.
     fido2 => fido2PlatformSupported ? MfaMethod.fido2 : null,
+    radius => MfaMethod.radius,
     mobileApprove || unknown => null,
   };
 

@@ -28,6 +28,7 @@ const _$MfaMethodEnumMap = {
   MfaMethod.openid: 2,
   MfaMethod.biometric: 3,
   MfaMethod.fido2: 5,
+  MfaMethod.radius: 6,
 };
 
 const _$MfaFlowStepStartRequestFieldMap = <String, String>{

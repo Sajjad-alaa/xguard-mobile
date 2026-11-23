@@ -38,6 +38,7 @@ const _$MfaMethodEnumMap = {
   MfaMethod.openid: 2,
   MfaMethod.biometric: 3,
   MfaMethod.fido2: 5,
+  MfaMethod.radius: 6,
 };
 
 StartMfaResponse _$StartMfaResponseFromJson(Map<String, dynamic> json) =>
