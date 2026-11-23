@@ -80,6 +80,8 @@ class DgMfaSelector extends StatelessWidget {
         return (instance?.openidProviderKind ?? OpenIdProvider.custom).icon;
       case MfaMethod.fido2:
         return 'hardware_key';
+      case MfaMethod.radius:
+        return 'key';
       case null:
         return 'key';
     }

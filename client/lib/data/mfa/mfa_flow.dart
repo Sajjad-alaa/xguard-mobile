@@ -19,6 +19,18 @@ class MfaStepAwaiting extends MfaStepProgress {
   const MfaStepAwaiting();
 }
 
+class MfaStepRadiusChallenge extends MfaStepProgress {
+  final String message;
+  final bool push;
+  final int pollIntervalSecs;
+
+  const MfaStepRadiusChallenge({
+    required this.message,
+    required this.push,
+    required this.pollIntervalSecs,
+  });
+}
+
 typedef MfaPlanRefresh = Future<List<MfaMethod>?> Function();
 
 /// Drives one connect-time MFA flow and keeps the preshared key out of widgets.
@@ -167,19 +179,31 @@ class MfaFlowController {
         return const MfaStepCompleted();
       case MfaFinishAwaitingExternal():
         return const MfaStepAwaiting();
+      case MfaFinishRadiusChallenge(
+        :final message,
+        :final push,
+        :final pollIntervalSecs,
+      ):
+        return MfaStepRadiusChallenge(
+          message: message,
+          push: push,
+          pollIntervalSecs: pollIntervalSecs,
+        );
     }
   }
 
   void _validateCredential(MfaCredential? credential) {
     final valid = switch (credential) {
       MfaCodeCredential() =>
-        method == MfaMethod.totp || method == MfaMethod.email,
+        method == MfaMethod.totp ||
+            method == MfaMethod.email ||
+            method == MfaMethod.radius,
       MfaBiometricCredential(:final signature, :final authPubKey) =>
         method == MfaMethod.biometric &&
             signature.isNotEmpty &&
             authPubKey.isNotEmpty,
       MfaFido2Credential() => method == MfaMethod.fido2,
-      null => method == MfaMethod.openid,
+      null => method == MfaMethod.openid || method == MfaMethod.radius,
     };
     if (!valid) throw StateError('Credential does not match the MFA step');
   }

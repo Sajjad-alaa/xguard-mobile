@@ -48,7 +48,8 @@ class MfaCapabilities {
   bool get supportsMultipleSteps => contract == MfaContract.multiStep;
 
   bool supports(MfaMethod method) =>
-      method != MfaMethod.fido2 || contract == MfaContract.multiStep;
+      (method != MfaMethod.fido2 && method != MfaMethod.radius) ||
+      contract == MfaContract.multiStep;
 
   bool canRun(List<MfaStep> steps) =>
       steps.length <= 1 || supportsMultipleSteps;

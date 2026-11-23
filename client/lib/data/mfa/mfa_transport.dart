@@ -112,6 +112,18 @@ final class MfaFinishAwaitingExternal extends MfaFinishResult {
   const MfaFinishAwaitingExternal();
 }
 
+final class MfaFinishRadiusChallenge extends MfaFinishResult {
+  final String message;
+  final bool push;
+  final int pollIntervalSecs;
+
+  const MfaFinishRadiusChallenge({
+    required this.message,
+    required this.push,
+    required this.pollIntervalSecs,
+  });
+}
+
 class MfaStartRejectedException implements Exception {
   final String message;
 
@@ -134,9 +146,11 @@ class LegacyMfaTransport implements MfaTransport {
     required List<MfaMethod> plan,
     DevicePostureFacts? posture,
   }) async {
-    if (plan.length != 1 || plan.single == MfaMethod.fido2) {
+    if (plan.length != 1 ||
+        plan.single == MfaMethod.fido2 ||
+        plan.single == MfaMethod.radius) {
       throw UnsupportedError(
-        'The legacy MFA contract supports one non-FIDO2 step',
+        'The legacy MFA contract supports one non-FIDO2/RADIUS step',
       );
     }
     final response = await _api.startMfa(
@@ -288,6 +302,16 @@ class MfaFlowProxyTransport implements MfaTransport {
         presharedKey,
       ),
       wire.MfaFlowAwaitingExternal() => const MfaFinishAwaitingExternal(),
+      wire.MfaFlowRadiusChallenge(
+        :final message,
+        :final push,
+        :final pollIntervalSecs,
+      ) =>
+        MfaFinishRadiusChallenge(
+          message: message,
+          push: push,
+          pollIntervalSecs: pollIntervalSecs,
+        ),
       _ => throw const FormatException('Unrecognized MFA flow finish response'),
     };
   }

@@ -31,7 +31,9 @@ enum MfaMethod {
   @j.JsonValue(3)
   biometric(3),
   @j.JsonValue(5)
-  fido2(5);
+  fido2(5),
+  @j.JsonValue(6)
+  radius(6);
 
   final int value;
 
@@ -51,6 +53,7 @@ enum MfaMethod {
     MfaMethod.openid: 'OpenId',
     MfaMethod.biometric: "Biometric",
     MfaMethod.fido2: "Fido2",
+    MfaMethod.radius: "Radius",
   };
 
   String toUiString({String? openidDisplayName}) {
@@ -67,6 +70,8 @@ enum MfaMethod {
             : openidDisplayName!;
       case MfaMethod.fido2:
         return "FIDO2 Security Key";
+      case MfaMethod.radius:
+        return "RADIUS";
     }
   }
 }

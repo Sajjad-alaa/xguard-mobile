@@ -277,6 +277,18 @@ final class MfaFlowAwaitingExternal extends MfaFlowResult {
   const MfaFlowAwaitingExternal();
 }
 
+final class MfaFlowRadiusChallenge extends MfaFlowResult {
+  final String message;
+  final bool push;
+  final int pollIntervalSecs;
+
+  const MfaFlowRadiusChallenge({
+    required this.message,
+    required this.push,
+    required this.pollIntervalSecs,
+  });
+}
+
 final class MfaFlowResultUnknown extends MfaFlowResult {
   const MfaFlowResultUnknown();
 }
@@ -300,6 +312,13 @@ class MfaFlowStepFinishResponse {
             ? MfaFlowCompleted(body['preshared_key'] as String?)
             : const MfaFlowResultUnknown(),
       ('AwaitingExternal', _) => const MfaFlowAwaitingExternal(),
+      ('RadiusChallenge', final body) => MfaFlowRadiusChallenge(
+        message: body['message'] is String ? body['message'] as String : '',
+        push: body['push'] is bool ? body['push'] as bool : false,
+        pollIntervalSecs: body['poll_interval_secs'] is int
+            ? body['poll_interval_secs'] as int
+            : 2,
+      ),
       _ => const MfaFlowResultUnknown(),
     };
     return MfaFlowStepFinishResponse(result: parsed);
