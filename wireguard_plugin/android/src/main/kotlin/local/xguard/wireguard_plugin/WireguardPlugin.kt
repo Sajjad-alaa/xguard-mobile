@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -178,6 +179,9 @@ class WireguardPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         onAttachedToActivity(binding)
     }
 
+    private suspend fun completeOnMain(block: () -> Unit) =
+        withContext(Dispatchers.Main) { block() }
+
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "requestPermissions" -> requestPermissions(result)
@@ -190,15 +194,20 @@ class WireguardPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                     } catch (e: SerializationException) {
                         result.error("INVALID_ARGS", "Error: ${e.message}", null);
                     }
+                } else {
+                    result.error("INVALID_ARGS", "Missing tunnel configuration", null)
                 }
             }
 
             "closeTunnel" -> {
-                if (Globals.activeTunnel != null) {
+                val tunnel = Globals.activeTunnel
+                if (tunnel != null) {
                     scope.launch(Dispatchers.IO) {
-                        Globals.activeTunnel?.let {
-                            closeTunnel(it);
-                            result.success(null);
+                        try {
+                            closeTunnel(tunnel)
+                            completeOnMain { result.success(null) }
+                        } catch (e: Exception) {
+                            completeOnMain { result.error("TUNNEL_ERROR", e.message, null) }
                         }
                     }
                 } else {
@@ -242,13 +251,17 @@ class WireguardPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             result.success(true)
         } else {
             scope.launch(Dispatchers.Main) {
-                val intent = GoBackend.VpnService.prepare(activity)
+                val hostActivity = activity ?: run {
+                    result.error("NO_ACTIVITY", "No host activity available", null)
+                    return@launch
+                }
+                val intent = GoBackend.VpnService.prepare(hostActivity)
                 if (intent == null) {
                     Globals.havePermission = true
                     result.success(true)
                 } else {
                     pendingResult = result
-                    activity?.startActivityForResult(intent, VPN_PERMISSION_REQUEST_CODE)
+                    hostActivity.startActivityForResult(intent, VPN_PERMISSION_REQUEST_CODE)
                 }
             }
         }
@@ -328,11 +341,11 @@ class WireguardPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                 updateTrafficTimestamp()
                 emitEvent(WireguardPluginEvent.TUNNEL_UP, json.encodeToString(tunnelData));
 
-                result.success(null)
+                completeOnMain { result.success(null) }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                result.error("TUNNEL_ERROR", e.message, null)
+                completeOnMain { result.error("TUNNEL_ERROR", e.message, null) }
             }
         }
     }

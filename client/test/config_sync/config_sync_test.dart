@@ -13,8 +13,10 @@ import 'package:mobile/data/config_sync/sync_service.dart';
 import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/db/enums.dart';
 import 'package:mobile/data/plugin/plugin.dart';
+import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/open/api.dart';
 import 'package:mobile/open/config_sync_controller.dart';
+import 'package:mobile/utils/update_instance.dart';
 
 class _FakeTunnels implements ConfigSyncTunnels {
   PluginTunnelEventData? current;
@@ -903,5 +905,134 @@ void main() {
         contains('no longer known'),
       );
     });
+
+    test(
+      'disconnects live tunnel when step methods narrow from [totp, email] to [fido2]',
+      () async {
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        final tunnels = _FakeTunnels();
+        final notices = <String>[];
+        final (instance, location) = await _seedInstance(db, locationMfa: true);
+
+        late ConfigPoll nextPoll;
+        final service = ConfigSyncService(
+          db: db,
+          fetch: (_, _, _) async => nextPoll,
+          readToken: (_) async => 'poll-tok',
+          tunnels: tunnels,
+          notify: notices.add,
+          random: const _FixedRandom(0.5),
+        );
+        addTearDown(service.dispose);
+
+        // First set step methods to [totp (0), email (1)] while disconnected.
+        nextPoll = parsePollResponse({
+          'not_modified': false,
+          'config_revision': 'x1-steps-broad',
+          'device_config': _configPayload(
+            mfaEnabled: true,
+            steps: [
+              {
+                'methods': [
+                  {'method': 0, 'configured': true},
+                  {'method': 1, 'configured': true},
+                ],
+              },
+            ],
+          ),
+        });
+        await service.syncNow();
+        expect(tunnels.disconnectCount, 0);
+
+        // Now connect and narrow allowed methods on step 0 to [fido2 (5)] only.
+        tunnels.current = PluginTunnelEventData(
+          instanceId: instance.id,
+          locationId: location.id,
+          traffic: RoutingMethod.all,
+        );
+        nextPoll = parsePollResponse({
+          'not_modified': false,
+          'config_revision': 'x1-steps-narrow',
+          'device_config': _configPayload(
+            mfaEnabled: true,
+            steps: [
+              {
+                'methods': [
+                  {'method': 5, 'configured': true},
+                ],
+              },
+            ],
+          ),
+        });
+        final service2 = ConfigSyncService(
+          db: db,
+          fetch: (_, _, _) async => nextPoll,
+          readToken: (_) async => 'poll-tok',
+          tunnels: tunnels,
+          notify: notices.add,
+          random: const _FixedRandom(0.5),
+        );
+        addTearDown(service2.dispose);
+        final report = await service2.syncNow();
+        expect(report[instance.id]?.tunnelAction, TunnelAction.reconnectByUser);
+        expect(tunnels.disconnectCount, 1);
+        expect(tunnels.active, isNull);
+        expect(notices.last, contains('Disconnected; reconnect to apply it.'));
+      },
+    );
+
+    test(
+      'applyExternalUpdate disconnects live tunnel after manual refresh tightens policy',
+      () async {
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        final tunnels = _FakeTunnels();
+        final notices = <String>[];
+        final (instance, location) = await _seedInstance(
+          db,
+          locationMfa: false,
+        );
+        tunnels.current = PluginTunnelEventData(
+          instanceId: instance.id,
+          locationId: location.id,
+          traffic: RoutingMethod.all,
+        );
+
+        final service = ConfigSyncService(
+          db: db,
+          fetch: (_, _, _) async => parsePollResponse({'not_modified': true}),
+          readToken: (_) async => 'poll-tok',
+          tunnels: tunnels,
+          notify: notices.add,
+          random: const _FixedRandom(0.5),
+        );
+        addTearDown(service.dispose);
+
+        final payload = _configPayload(mfaEnabled: true);
+        final configs = (payload['configs'] as List)
+            .map((e) => DeviceConfig.fromJson(e as Map<String, dynamic>))
+            .toList();
+        final info = InstanceInfo.fromJson(
+          payload['instance'] as Map<String, dynamic>,
+        );
+        final updateResult = await updateInstance(
+          db: db,
+          instance: instance,
+          configs: configs,
+          info: info,
+        );
+        expect(updateResult, isNotNull);
+        expect(updateResult!.policyTightened, contains(location.id));
+
+        final action = await service.applyExternalUpdate(
+          instance,
+          updateResult,
+        );
+        expect(action, TunnelAction.reconnectByUser);
+        expect(tunnels.disconnectCount, 1);
+        expect(tunnels.active, isNull);
+      },
+    );
   });
 }

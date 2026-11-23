@@ -1,10 +1,12 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mobile/data/config_sync/sync_service.dart';
 import 'package:mobile/data/db/database.dart';
 import 'package:mobile/data/proxy/enrollment.dart';
 import 'package:mobile/logging.dart';
 import 'package:mobile/open/api.dart';
+import 'package:mobile/open/config_sync_controller.dart';
 import 'package:mobile/open/widgets/dg_app_bar.dart';
 import 'package:mobile/open/widgets/dg_button.dart';
 import 'package:mobile/open/widgets/dg_icon_button.dart';
@@ -55,6 +57,7 @@ class _RefreshInstanceContent extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final db = ref.read(databaseProvider);
+    final syncService = ref.read(configSyncServiceProvider);
     final toaster = ref.read(toastManagerProvider.notifier);
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final tokenController = useTextEditingController();
@@ -77,6 +80,7 @@ class _RefreshInstanceContent extends HookConsumerWidget {
       try {
         final refreshed = await _refreshInstance(
           db,
+          syncService,
           toaster,
           instance,
           Uri.parse(urlController.text.trim()),
@@ -169,6 +173,7 @@ bool _isValidUri(String value) {
 
 Future<bool> _refreshInstance(
   AppDatabase db,
+  ConfigSyncService syncService,
   ToastManager toaster,
   XGuardInstance instance,
   Uri uri,
@@ -187,6 +192,9 @@ Future<bool> _refreshInstance(
       info: networkInfo.instance,
       token: networkInfo.token,
     );
+    if (updateResult != null) {
+      await syncService.applyExternalUpdate(instance, updateResult);
+    }
     if (updateResult != null && updateResult.didChange) {
       final message = getInstanceUpdateMessage(instance.name, updateResult);
       toaster.show(message: "Instance ${instance.name} updated: $message");

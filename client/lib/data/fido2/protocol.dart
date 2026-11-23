@@ -89,10 +89,18 @@ class RelyingParty {
     } on FormatException {
       throw const Fido2ProtocolException('the instance URL is invalid');
     }
+    if (uri.userInfo.isNotEmpty) {
+      throw const Fido2ProtocolException(
+        'the instance URL must not contain credentials',
+      );
+    }
     if (uri.scheme != 'https' && uri.scheme != 'http') {
       throw const Fido2ProtocolException('the instance URL is not HTTP(S)');
     }
     final host = uri.host.toLowerCase();
+    if (uri.scheme == 'http' && host != 'localhost') {
+      throw const Fido2ProtocolException('the instance URL must use HTTPS');
+    }
     if (host.isEmpty || _isIpAddress(host)) {
       throw const Fido2ProtocolException(
         'the instance URL has no domain name',

@@ -111,9 +111,11 @@ void main() {
     }
   });
 
-  test('base options carry no capability headers', () {
+  test('base options carry no capability headers and disable redirects', () {
     expect(dio.options.headers.containsKey(clientVersionHeader), isFalse);
     expect(dio.options.headers.containsKey(clientPlatformHeader), isFalse);
+    expect(dio.options.followRedirects, isFalse);
+    expect(dio.options.maxRedirects, 0);
   });
 }
 

@@ -1,4 +1,5 @@
 import NetworkExtension
+import Security
 import os
 
 #if os(macOS)
@@ -327,11 +328,63 @@ public class WireguardPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
         defaults?.removeObject(forKey: "lastTunnelError")
     }
 
+    private struct TunnelKeychainSecrets: Codable {
+        let privateKey: String
+        let presharedKey: String?
+    }
+
+    private static let tunnelSecretsService = "local.xguard.mobile.vpn"
+    private static let tunnelSecretsAccount = "tunnel-keys"
+
+    private static func storeTunnelSecrets(privateKey: String, presharedKey: String?) throws -> Data {
+        let payload = TunnelKeychainSecrets(privateKey: privateKey, presharedKey: presharedKey)
+        let secretData = try JSONEncoder().encode(payload)
+
+        let baseQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: tunnelSecretsService,
+            kSecAttrAccount as String: tunnelSecretsAccount,
+        ]
+        SecItemDelete(baseQuery as CFDictionary)
+
+        var addQuery = baseQuery
+        addQuery[kSecValueData as String] = secretData
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        addQuery[kSecReturnPersistentRef as String] = true
+
+        var item: CFTypeRef?
+        let status = SecItemAdd(addQuery as CFDictionary, &item)
+        guard status == errSecSuccess, let persistentRef = item as? Data else {
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+        }
+        return persistentRef
+    }
+
     private func startTunnel(
         config: TunnelStartData,
         result: @escaping FlutterResult
     ) {
-        logger.log("Starting tunnel with config: \(String(describing: config))")
+        logger.log(
+            "Starting tunnel for location \(config.locationId, privacy: .public) endpoint \(config.endpoint, privacy: .public)"
+        )
+
+        let secretRef: Data
+        do {
+            secretRef = try Self.storeTunnelSecrets(
+                privateKey: config.privateKey,
+                presharedKey: config.presharedKey
+            )
+        } catch {
+            self.logger.log(
+                "Failed to store tunnel secrets in Keychain: \(error.localizedDescription, privacy: .public)"
+            )
+            result(VPNError.configurationError(error).flutterError)
+            return
+        }
+
+        var sanitizedConfig = config
+        sanitizedConfig.privateKey = ""
+        sanitizedConfig.presharedKey = nil
 
         vpnManager.loadProviderManager { manager in
             let appId = Bundle.main.bundleIdentifier ?? "local.xguard.mobile"
@@ -339,9 +392,10 @@ public class WireguardPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
             let tunnelProtocol = NETunnelProviderProtocol()
             tunnelProtocol.providerBundleIdentifier = "\(appId).VPNExtension"
             tunnelProtocol.serverAddress = config.endpoint
+            tunnelProtocol.passwordReference = secretRef
             let configDict: [String: Any]
             do {
-                configDict = try config.toDictionary()
+                configDict = try sanitizedConfig.toDictionary()
             } catch {
                 self.logger.log(
                     "Failed to convert config to dictionary: \(error.localizedDescription, privacy: .public)"

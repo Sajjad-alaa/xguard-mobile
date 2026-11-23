@@ -308,6 +308,11 @@ class ConfigSyncService {
     }
   }
 
+  Future<TunnelAction> applyExternalUpdate(
+    XGuardInstance before,
+    UpdateInstanceResult update,
+  ) => _applyToTunnel(before, update);
+
   Future<TunnelAction> _applyToTunnel(
     XGuardInstance before,
     UpdateInstanceResult update,

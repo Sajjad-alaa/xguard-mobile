@@ -1,7 +1,13 @@
 import NetworkExtension
+import Security
 
 enum WireGuardTunnelError: Error {
     case invalidTunnelConfiguration
+}
+
+private struct TunnelKeychainSecrets: Codable {
+    let privateKey: String
+    let presharedKey: String?
 }
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
@@ -35,9 +41,33 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             return
         }
 #else
-        guard let startData = try? TunnelStartData.from(dictionary: providerConfig)
+        guard var startData = try? TunnelStartData.from(dictionary: providerConfig)
         else {
             log.error("Failed to parse tunnel configuration")
+            completionHandler(WireGuardTunnelError.invalidTunnelConfiguration)
+            return
+        }
+        if let ref = protocolConfig.passwordReference {
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecValuePersistentRef as String: ref,
+                kSecReturnData as String: true,
+            ]
+            var item: CFTypeRef?
+            let status = SecItemCopyMatching(query as CFDictionary, &item)
+            if status == errSecSuccess,
+               let secretData = item as? Data,
+               let secrets = try? JSONDecoder().decode(TunnelKeychainSecrets.self, from: secretData) {
+                startData.privateKey = secrets.privateKey
+                startData.presharedKey = secrets.presharedKey
+            } else {
+                log.error("Failed to load tunnel secrets from Keychain (status: \(status))")
+                completionHandler(WireGuardTunnelError.invalidTunnelConfiguration)
+                return
+            }
+        }
+        guard !startData.privateKey.isEmpty else {
+            log.error("Tunnel configuration missing private key")
             completionHandler(WireGuardTunnelError.invalidTunnelConfiguration)
             return
         }
@@ -45,23 +75,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 #endif
 
         let networkSettings = tunnelConfig.asNetworkSettings()
-        self.setTunnelNetworkSettings(networkSettings) { error in
-            if error != nil {
-                self.log.error("Failed to set tunnel network settings: \(String(describing: error))")
+        self.setTunnelNetworkSettings(networkSettings) { [weak self] error in
+            guard let self = self else {
+                completionHandler(WireGuardTunnelError.invalidTunnelConfiguration)
+                return
             }
-            completionHandler(error)
-            return
+            if let error = error {
+                self.log.error("Failed to set tunnel network settings: \(String(describing: error))")
+                completionHandler(error)
+                return
+            }
+            do {
+                try self.adapter.start(tunnelConfiguration: tunnelConfig)
+                self.log.info("Tunnel started successfully")
+                completionHandler(nil)
+            } catch {
+                self.log.error("Failed to start tunnel: \(error)")
+                completionHandler(error)
+            }
         }
-
-        do {
-            try adapter.start(tunnelConfiguration: tunnelConfig)
-        } catch {
-            log.error("Failed to start tunnel: \(error)")
-            completionHandler(error)
-        }
-        log.info("Tunnel started successfully")
-
-        completionHandler(nil)
     }
 
     override func stopTunnel(

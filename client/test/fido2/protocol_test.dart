@@ -84,13 +84,18 @@ void main() {
         RelyingParty.forInstance('https://xguard.example.com:443').origin,
         'https://xguard.example.com',
       );
+      final local = RelyingParty.forInstance('http://localhost:8080/edge');
+      expect(local.id, 'localhost');
+      expect(local.origin, 'http://localhost:8080');
     });
 
-    test('refuses IP addresses, other schemes and non-ASCII hosts', () {
+    test('refuses IP addresses, non-local HTTP, userinfo, and non-ASCII hosts', () {
       for (final url in [
         'https://10.0.0.1/',
         'https://[::1]/',
         'https://example.123/',
+        'http://xguard.example.com/',
+        'https://user:pass@xguard.example.com/',
         'ftp://example.com/',
         'https://bücher.example/',
         'not a url',

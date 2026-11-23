@@ -178,7 +178,7 @@ final class TunnelConfiguration: Codable {
         // Peer settings
         peer.preSharedKey = startData.presharedKey
         peer.endpoint = Endpoint(from: startData.endpoint)
-        peer.persistentKeepAlive = UInt16(startData.keepalive)
+        peer.persistentKeepAlive = UInt16(max(0, min(startData.keepalive, 3600)))
         peer.allowedIPs =
         switch startData.traffic {
             case .All:

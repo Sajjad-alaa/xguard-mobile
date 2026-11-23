@@ -134,9 +134,30 @@ Future<UpdateInstanceResult?> updateInstance({
           if (!config.tunnelSettingsMatch(location)) {
             result.tunnelChanged.add(location.id);
           }
+          final prevSteps = effectiveMfaSteps(location);
+          final nextSteps = config.effectiveSteps;
+          final overlap = prevSteps.length < nextSteps.length
+              ? prevSteps.length
+              : nextSteps.length;
+          var methodsNarrowed = false;
+          if (prevSteps.isNotEmpty && nextSteps.isNotEmpty) {
+            for (var i = 0; i < overlap; i++) {
+              final nextMethods = nextSteps[i].methods
+                  .map((entry) => entry.apiMethod)
+                  .toSet();
+              final removed = prevSteps[i].methods.any(
+                (entry) => !nextMethods.contains(entry.apiMethod),
+              );
+              if (removed) {
+                methodsNarrowed = true;
+                break;
+              }
+            }
+          }
           final mfaTightened =
-              (!shouldStartMfa(location) && config.effectiveSteps.isNotEmpty) ||
-              config.effectiveSteps.length > effectiveMfaSteps(location).length;
+              (!shouldStartMfa(location) && nextSteps.isNotEmpty) ||
+              nextSteps.length > prevSteps.length ||
+              methodsNarrowed;
           final postureTightened =
               location.postureCheckRequired != true &&
               config.postureCheckRequired == true;

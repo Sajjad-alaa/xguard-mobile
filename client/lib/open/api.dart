@@ -233,6 +233,8 @@ Dio buildProxyDio({
   final dio = Dio(
     BaseOptions(
       responseType: ResponseType.json,
+      followRedirects: false,
+      maxRedirects: 0,
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 60),
     ),
@@ -370,7 +372,11 @@ class ProxyApi {
     ]);
     try {
       final requestBody = data.toJson();
-      final response = await _dio.postUri(endpoint, data: requestBody);
+      final response = await _dio.postUri(
+        endpoint,
+        data: requestBody,
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return EnrollmentStartResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
@@ -399,7 +405,11 @@ class ProxyApi {
     ]);
 
     try {
-      final response = await _dio.postUri(endpoint, data: data.toJson());
+      final response = await _dio.postUri(
+        endpoint,
+        data: data.toJson(),
+        options: Options(followRedirects: false, maxRedirects: 0),
+      );
       return CreateDeviceResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
@@ -606,7 +616,11 @@ class ProxyApi {
       'network_info',
     ]);
     final body = {'pubkey': pubKey};
-    final response = await _dio.postUri(endpoint, data: body);
+    final response = await _dio.postUri(
+      endpoint,
+      data: body,
+      options: Options(followRedirects: false, maxRedirects: 0),
+    );
     return NetworkInfoResponse.fromJson(response.data);
   }
 
@@ -624,7 +638,11 @@ class ProxyApi {
       authPubKey: authPubKey,
       devicePubKey: devicePubKey,
     );
-    await _dio.postUri(endpoint, data: requestData.toJson());
+    await _dio.postUri(
+      endpoint,
+      data: requestData.toJson(),
+      options: Options(followRedirects: false, maxRedirects: 0),
+    );
   }
 }
 
