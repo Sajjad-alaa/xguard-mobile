@@ -99,6 +99,24 @@ void main() {
       expect(status(null), isNull);
     });
 
+    test('Android storage without a secure lock screen is not encrypted', () {
+      bool? status(int code, bool? secure) => diskEncryptedFrom(
+        PostureProbes(
+          os: PostureOs.android,
+          androidEncryptionStatus: code,
+          deviceSecure: secure,
+        ),
+      );
+
+      // File-based encryption reports "per user" even without a credential.
+      expect(status(AndroidEncryptionStatus.activePerUser, false), isFalse);
+      expect(status(AndroidEncryptionStatus.active, false), isFalse);
+      expect(status(AndroidEncryptionStatus.activePerUser, true), isTrue);
+      // Unknown lock state keeps the platform's answer.
+      expect(status(AndroidEncryptionStatus.activePerUser, null), isTrue);
+      expect(status(AndroidEncryptionStatus.inactive, true), isFalse);
+    });
+
     test('maps iOS encryption from device passcode presence', () {
       expect(
         diskEncryptedFrom(
@@ -151,6 +169,7 @@ void main() {
         'os': PostureOs.android.wire,
         'client_version': '2.2.0',
         'collected_at': 1795341600,
+        'facts_revision': 2,
         'os_version': '15',
         'os_name': 'Android 15',
         'disk_encrypted': true,
@@ -161,6 +180,59 @@ void main() {
       expect(json.containsKey('kernel_version'), isFalse);
       expect(json.containsKey('firewall_enabled'), isFalse);
       expect(json.containsKey('antivirus_enabled'), isFalse);
+      expect(json.containsKey('security_update_age_days'), isFalse);
+    });
+
+    test('builds iOS JSON with passcode and data protection', () {
+      final secure = buildPostureFacts(
+        const PostureProbes(
+          os: PostureOs.ios,
+          osVersion: '18.1.1',
+          clientVersion: '2.3.1',
+          deviceSecure: true,
+        ),
+        DateTime.utc(2026, 11, 22, 10, 0, 0),
+      ).toJson();
+      expect(secure['screen_lock_enabled'], isTrue);
+      expect(secure['disk_encrypted'], isTrue);
+      expect(secure['facts_revision'], postureFactsRevision);
+      // iOS cannot report update age, firewall, antivirus or domain.
+      for (final key in [
+        'security_update_age_days',
+        'security_patch_date',
+        'firewall_enabled',
+        'antivirus_enabled',
+        'domain_joined',
+        'device_integrity',
+      ]) {
+        expect(secure.containsKey(key), isFalse, reason: key);
+      }
+
+      final open = buildPostureFacts(
+        const PostureProbes(
+          os: PostureOs.ios,
+          clientVersion: '2.3.1',
+          deviceSecure: false,
+        ),
+        DateTime.utc(2026, 11, 22, 10, 0, 0),
+      ).toJson();
+      expect(open['screen_lock_enabled'], isFalse);
+      expect(open['disk_encrypted'], isFalse);
+    });
+
+    test('Android without a lock screen reports both checks as failing', () {
+      final json = buildPostureFacts(
+        const PostureProbes(
+          os: PostureOs.android,
+          osVersion: '14',
+          clientVersion: '2.3.1',
+          deviceSecure: false,
+          androidEncryptionStatus: AndroidEncryptionStatus.activePerUser,
+        ),
+        DateTime.utc(2026, 11, 22, 10, 0, 0),
+      ).toJson();
+      expect(json['screen_lock_enabled'], isFalse);
+      expect(json['disk_encrypted'], isFalse);
     });
 
     test('builds iOS JSON without Android security patch and omits nulls', () {
@@ -180,6 +252,7 @@ void main() {
         'os': PostureOs.ios.wire,
         'client_version': '0.0.0',
         'collected_at': 1795341600,
+        'facts_revision': 2,
         'os_name': 'iOS',
       });
       expect(json.containsKey('os_version'), isFalse);

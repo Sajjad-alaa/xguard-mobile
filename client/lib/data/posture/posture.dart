@@ -1,6 +1,6 @@
 // XGuard device posture: the facts the app reports about its own device when it
 // connects to a location with posture policies. Mirrors `DevicePostureFacts`
-// and `PostureOs` in `proto/common/client_types.proto` (xguard-proto e48e727).
+// and `PostureOs` in `proto/common/client_types.proto` (xguard-proto f79e518).
 //
 // The facts are an attestation, not proof: Core cannot verify them. Missing
 // facts are left out of the JSON and Core treats them as unknown, which fails
@@ -26,6 +26,13 @@ final _patchDate = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
 
 /// Longest string fact sent; Core caps them as well.
 const int _maxStringFact = 128;
+
+/// `DevicePostureFacts.facts_revision`: the set of facts this app knows how to
+/// report. Revision 2 is "every fact the platform can detect": on a phone that
+/// is OS version, screen lock, storage encryption and (Android) patch level.
+/// Core uses it to tell an app that is too old to report a fact from one that
+/// could not determine it.
+const int postureFactsRevision = 2;
 
 /// The leading dotted number of a version string ("17.5.1", "14",
 /// "15.0.0 (beta)" → "15.0.0"), or null when there is none.
@@ -59,9 +66,7 @@ String? normalizePatchDate(String? raw) {
 
 String? _cleanString(String? value) {
   if (value == null) return null;
-  final cleaned = value
-      .replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '')
-      .trim();
+  final cleaned = value.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '').trim();
   if (cleaned.isEmpty) return null;
   return cleaned.length > _maxStringFact
       ? cleaned.substring(0, _maxStringFact)
@@ -81,10 +86,14 @@ class DevicePostureFacts {
   /// Unix seconds, client clock.
   final int collectedAt;
 
+  /// See [postureFactsRevision].
+  final int factsRevision;
+
   const DevicePostureFacts({
     required this.os,
     required this.clientVersion,
     required this.collectedAt,
+    this.factsRevision = postureFactsRevision,
     this.osVersion,
     this.osName,
     this.diskEncrypted,
@@ -93,12 +102,15 @@ class DevicePostureFacts {
     this.securityPatchDate,
   });
 
-  /// Facts that do not apply to a phone (kernel, firewall, antivirus, domain,
-  /// Windows update age) are never sent.
+  /// Facts a phone cannot report reliably are never sent: kernel, firewall,
+  /// antivirus and domain do not apply, and neither iOS nor Android tells an
+  /// app when the last update was installed (Android's patch level date is
+  /// sent instead).
   Map<String, dynamic> toJson() => {
     'os': os.wire,
     'client_version': clientVersion,
     'collected_at': collectedAt,
+    'facts_revision': factsRevision,
     'os_version': ?osVersion,
     'os_name': ?osName,
     'disk_encrypted': ?diskEncrypted,
@@ -146,14 +158,17 @@ abstract final class AndroidEncryptionStatus {
 ///
 /// - Android: active (3) and file-based per-user (5) are encrypted; encryption
 ///   with the default key (4, no lock screen credential), inactive and
-///   unsupported are not; anything else is unknown.
+///   unsupported are not; anything else is unknown. Without a secure lock
+///   screen the keys are not protected by a user secret (file-based encryption
+///   still reports 5), so a device known to have no lock screen is reported as
+///   not encrypted.
 /// - iOS: storage is always encrypted in hardware, and Data Protection keys are
 ///   bound to the passcode, so files are protected exactly when a passcode is
 ///   set.
 bool? diskEncryptedFrom(PostureProbes probes) => switch (probes.os) {
   PostureOs.android => switch (probes.androidEncryptionStatus) {
     AndroidEncryptionStatus.active ||
-    AndroidEncryptionStatus.activePerUser => true,
+    AndroidEncryptionStatus.activePerUser => probes.deviceSecure != false,
     AndroidEncryptionStatus.unsupported ||
     AndroidEncryptionStatus.inactive ||
     AndroidEncryptionStatus.activeDefaultKey => false,
