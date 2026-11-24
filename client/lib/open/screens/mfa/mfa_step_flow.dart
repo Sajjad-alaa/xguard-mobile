@@ -9,6 +9,7 @@ import 'package:mobile/open/screens/mfa/mfa_biometric_screen.dart';
 import 'package:mobile/open/screens/mfa/mfa_email_screen.dart';
 import 'package:mobile/open/screens/mfa/mfa_fido2_screen.dart';
 import 'package:mobile/open/screens/mfa/mfa_openid_screen.dart';
+import 'package:mobile/open/screens/mfa/mfa_radius_screen.dart';
 import 'package:mobile/open/screens/mfa/mfa_step_chrome.dart';
 import 'package:mobile/open/screens/mfa/mfa_totp_screen.dart';
 import 'package:mobile/utils/error_handler.dart';
@@ -168,6 +169,6 @@ class MfaStepFlow implements MfaStepHost {
       openidProvider: openidProvider ?? OpenIdProvider.custom,
     ),
     MfaMethod.fido2 => MfaFido2Screen(host: this, instanceUrl: instanceUrl),
-    MfaMethod.radius => MfaTotpScreen(host: this),
+    MfaMethod.radius => MfaRadiusScreen(host: this),
   };
 }

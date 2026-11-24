@@ -15,7 +15,8 @@ class ErrorHandler {
         case DioExceptionType.connectionError:
           return _connectionErrorMessage;
         case DioExceptionType.badResponse:
-          return _statusMessage(e.response?.statusCode);
+          return _limitMessageFromResponse(e.response?.data) ??
+              _statusMessage(e.response?.statusCode);
         case DioExceptionType.cancel:
           return "Request was cancelled.";
         default:
@@ -60,10 +61,43 @@ class ErrorHandler {
     }
 
     final s = e.toString();
+    final lower = s.toLowerCase();
+    if (lower.contains('device_limit_reached') ||
+        lower.contains('device limit reached')) {
+      return _deviceLimitMessage;
+    }
+    if (lower.contains('connection_limit_reached') ||
+        lower.contains('connection limit reached') ||
+        lower.contains('concurrent connection limit')) {
+      return _connectionLimitMessage;
+    }
     if (s.startsWith("Exception: ")) {
       return s.substring(11);
     }
     return s;
+  }
+
+  static const _deviceLimitMessage =
+      "Maximum number of registered devices reached for your account. Remove an unused device or contact your administrator.";
+
+  static const _connectionLimitMessage =
+      "Maximum number of concurrent VPN connections reached for your account. Disconnect another device or contact your administrator.";
+
+  static String? _limitMessageFromResponse(dynamic data) {
+    if (data is Map) {
+      final code = data['code']?.toString().toLowerCase() ?? '';
+      final msg = data['msg']?.toString().toLowerCase() ?? '';
+      if (code == 'device_limit_reached' ||
+          msg.contains('device limit reached')) {
+        return _deviceLimitMessage;
+      }
+      if (code == 'connection_limit_reached' ||
+          msg.contains('connection limit reached') ||
+          msg.contains('concurrent connection limit')) {
+        return _connectionLimitMessage;
+      }
+    }
+    return null;
   }
 
   static String getOpenIdMfaError(Object e) {
