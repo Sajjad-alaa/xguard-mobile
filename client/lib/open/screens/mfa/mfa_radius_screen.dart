@@ -67,7 +67,17 @@ class MfaRadiusScreen extends HookConsumerWidget {
         if (reportIfPostureRejected(host, e) || reportIfAttemptLimit(host, e)) {
           return;
         }
-        if (!isPoll && context.mounted) {
+        if (isPoll) {
+          // A failed poll (expired session, server error) ends the push wait instead of
+          // retrying every few seconds until the screen is closed.
+          if (context.mounted) {
+            challenge.value = null;
+            errorText.value =
+                'The push approval could not be confirmed. Send a new challenge or enter a code.';
+          }
+          return;
+        }
+        if (context.mounted) {
           toaster.showError(
             message: ErrorHandler.getHumanReadableError(e),
             logMessage: 'RADIUS MFA submit failed',
